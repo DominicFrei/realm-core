@@ -1,0 +1,4 @@
+module RealmC {
+    umbrella header "/Users/dominic.frei/Repositories/RealmBootcamp/src/realm/realm.h"
+    export *
+}
