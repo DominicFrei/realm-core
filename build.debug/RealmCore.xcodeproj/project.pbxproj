@@ -6804,7 +6804,7 @@
 				OTHER_REZFLAGS = "";
 				PRODUCT_NAME = "realm-ffi";
 				SECTORDER_FLAGS = "";
-				SYMROOT = "/Users/dominic.frei/Repositories/RealmBootcamp/build.debug/src/realm/object-store/c_api";
+				SYMROOT = "build.debug/src/realm/object-store/c_api";
 				USE_HEADERMAP = NO;
 				WARNING_CFLAGS = "$(inherited)";
 			};
@@ -7472,7 +7472,7 @@
 				OTHER_REZFLAGS = "";
 				PRODUCT_NAME = "realm-ffi";
 				SECTORDER_FLAGS = "";
-				SYMROOT = "/Users/dominic.frei/Repositories/RealmBootcamp/build.debug/src/realm/object-store/c_api";
+				SYMROOT = "build.debug/src/realm/object-store/c_api";
 				USE_HEADERMAP = NO;
 				WARNING_CFLAGS = "$(inherited)";
 			};
@@ -7714,7 +7714,7 @@
 				OTHER_REZFLAGS = "";
 				PRODUCT_NAME = "realm-ffi-dbg";
 				SECTORDER_FLAGS = "";
-				SYMROOT = "/Users/dominic.frei/Repositories/RealmBootcamp/build.debug/src/realm/object-store/c_api";
+				SYMROOT = "build.debug/src/realm/object-store/c_api";
 				USE_HEADERMAP = NO;
 				WARNING_CFLAGS = "$(inherited)";
 			};
@@ -13068,7 +13068,7 @@
 				OTHER_REZFLAGS = "";
 				PRODUCT_NAME = "realm-ffi";
 				SECTORDER_FLAGS = "";
-				SYMROOT = "/Users/dominic.frei/Repositories/RealmBootcamp/build.debug/src/realm/object-store/c_api";
+				SYMROOT = "build.debug/src/realm/object-store/c_api";
 				USE_HEADERMAP = NO;
 				WARNING_CFLAGS = "$(inherited)";
 			};
