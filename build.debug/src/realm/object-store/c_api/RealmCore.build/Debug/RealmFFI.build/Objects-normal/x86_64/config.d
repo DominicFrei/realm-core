@@ -1,5 +1,5 @@
 dependencies: \
-  /Users/dominic.frei/Repositories/RealmBootcamp7/src/realm/object-store/c_api/config.cpp \
+  /Users/dominic.frei/Repositories/FreshBootcamp/src/realm/object-store/c_api/config.cpp \
   /Users/dominic.frei/Repositories/RealmBootcamp/src/realm/object-store/c_api/types.hpp \
   /Users/dominic.frei/Repositories/RealmBootcamp/src/realm/realm.h \
   /Users/dominic.frei/Repositories/RealmBootcamp/src/realm/object-store/c_api/conversion.hpp \
