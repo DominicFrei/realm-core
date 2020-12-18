@@ -1,0 +1,27 @@
+dependencies: \
+  /Users/dominic.frei/Repositories/Bootcamp3/src/realm/object-store/schema.cpp \
+  /Users/dominic.frei/Repositories/RealmBootcamp/src/realm/object-store/schema.hpp \
+  /Users/dominic.frei/Repositories/RealmBootcamp/src/realm/util/features.h \
+  /Users/dominic.frei/Repositories/RealmBootcamp/build.debug/src/realm/util/config.h \
+  /Users/dominic.frei/Repositories/RealmBootcamp/src/realm/object-store/object_schema.hpp \
+  /Users/dominic.frei/Repositories/RealmBootcamp/src/realm/object-store/util/tagged_bool.hpp \
+  /Users/dominic.frei/Repositories/RealmBootcamp/src/realm/keys.hpp \
+  /Users/dominic.frei/Repositories/RealmBootcamp/src/realm/util/to_string.hpp \
+  /Users/dominic.frei/Repositories/RealmBootcamp/src/realm/column_type.hpp \
+  /Users/dominic.frei/Repositories/RealmBootcamp/src/realm/data_type.hpp \
+  /Users/dominic.frei/Repositories/RealmBootcamp/src/realm/util/assert.hpp \
+  /Users/dominic.frei/Repositories/RealmBootcamp/src/realm/util/terminate.hpp \
+  /Users/dominic.frei/Repositories/RealmBootcamp/src/realm/version.hpp \
+  /Users/dominic.frei/Repositories/RealmBootcamp/build.debug/src/realm/version_numbers.hpp \
+  /Users/dominic.frei/Repositories/RealmBootcamp/src/realm/string_data.hpp \
+  /Users/dominic.frei/Repositories/RealmBootcamp/src/realm/null.hpp \
+  /Users/dominic.frei/Repositories/RealmBootcamp/src/realm/util/optional.hpp \
+  /Users/dominic.frei/Repositories/RealmBootcamp/src/realm/util/backtrace.hpp \
+  /Users/dominic.frei/Repositories/RealmBootcamp/src/realm/utilities.hpp \
+  /Users/dominic.frei/Repositories/RealmBootcamp/src/realm/util/safe_int_ops.hpp \
+  /Users/dominic.frei/Repositories/RealmBootcamp/src/realm/util/type_traits.hpp \
+  /Users/dominic.frei/Repositories/RealmBootcamp/src/realm/util/type_list.hpp \
+  /Users/dominic.frei/Repositories/RealmBootcamp/src/realm/exceptions.hpp \
+  /Users/dominic.frei/Repositories/RealmBootcamp/src/realm/object-store/object_store.hpp \
+  /Users/dominic.frei/Repositories/RealmBootcamp/src/realm/object-store/property.hpp \
+  /Users/dominic.frei/Repositories/RealmBootcamp/src/realm/table_ref.hpp

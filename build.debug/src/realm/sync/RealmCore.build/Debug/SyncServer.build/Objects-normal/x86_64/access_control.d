@@ -1,0 +1,26 @@
+dependencies: \
+  /Users/dominic.frei/Repositories/RealmBootcamp/src/realm/sync/access_control.cpp \
+  /Users/dominic.frei/Repositories/RealmBootcamp/src/realm/sync/access_control.hpp \
+  /Users/dominic.frei/Repositories/RealmBootcamp/src/realm/string_data.hpp \
+  /Users/dominic.frei/Repositories/RealmBootcamp/src/realm/null.hpp \
+  /Users/dominic.frei/Repositories/RealmBootcamp/src/realm/util/features.h \
+  /Users/dominic.frei/Repositories/RealmBootcamp/build.debug/src/realm/util/config.h \
+  /Users/dominic.frei/Repositories/RealmBootcamp/src/realm/util/optional.hpp \
+  /Users/dominic.frei/Repositories/RealmBootcamp/src/realm/util/assert.hpp \
+  /Users/dominic.frei/Repositories/RealmBootcamp/src/realm/util/terminate.hpp \
+  /Users/dominic.frei/Repositories/RealmBootcamp/src/realm/util/to_string.hpp \
+  /Users/dominic.frei/Repositories/RealmBootcamp/src/realm/version.hpp \
+  /Users/dominic.frei/Repositories/RealmBootcamp/build.debug/src/realm/version_numbers.hpp \
+  /Users/dominic.frei/Repositories/RealmBootcamp/src/realm/util/backtrace.hpp \
+  /Users/dominic.frei/Repositories/RealmBootcamp/src/realm/utilities.hpp \
+  /Users/dominic.frei/Repositories/RealmBootcamp/src/realm/util/safe_int_ops.hpp \
+  /Users/dominic.frei/Repositories/RealmBootcamp/src/realm/util/type_traits.hpp \
+  /Users/dominic.frei/Repositories/RealmBootcamp/src/realm/util/type_list.hpp \
+  /Users/dominic.frei/Repositories/RealmBootcamp/src/realm/exceptions.hpp \
+  /Users/dominic.frei/Repositories/RealmBootcamp/src/realm/sync/access_token.hpp \
+  /Users/dominic.frei/Repositories/RealmBootcamp/src/realm/binary_data.hpp \
+  /Users/dominic.frei/Repositories/RealmBootcamp/src/realm/owned_data.hpp \
+  /Users/dominic.frei/Repositories/RealmBootcamp/src/realm/sync/crypto_server.hpp \
+  /Users/dominic.frei/Repositories/RealmBootcamp/src/realm/util/buffer.hpp \
+  /Users/dominic.frei/Repositories/RealmBootcamp/src/realm/util/allocator.hpp \
+  /Users/dominic.frei/Repositories/RealmBootcamp/src/realm/sync/permissions.hpp

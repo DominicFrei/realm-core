@@ -1,0 +1,5 @@
+version: "Apple Swift version 5.3.1 (swiftlang-1200.0.41 clang-1200.0.32.8)"
+options: "8e94473cab84eaa019e525681bdad5e3"
+build_time: [1608307905, 762780000]
+inputs:
+  "/Users/dominic.frei/Repositories/RealmBootcamp2/build.debug/RealmBootcamp/main.swift": [1608307495, 869128961]

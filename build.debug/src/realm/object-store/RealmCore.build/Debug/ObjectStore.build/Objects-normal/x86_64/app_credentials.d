@@ -1,0 +1,33 @@
+dependencies: \
+  /Users/dominic.frei/Repositories/Bootcamp3/src/realm/object-store/sync/app_credentials.cpp \
+  /Users/dominic.frei/Repositories/RealmBootcamp/src/realm/object-store/sync/app_credentials.hpp \
+  /Users/dominic.frei/Repositories/RealmBootcamp/src/realm/object-store/util/tagged_string.hpp \
+  /Users/dominic.frei/Repositories/RealmBootcamp/src/realm/object-store/util/bson/bson.hpp \
+  /Users/dominic.frei/Repositories/RealmBootcamp/src/realm/object-store/util/bson/indexed_map.hpp \
+  /Users/dominic.frei/Repositories/RealmBootcamp/src/realm/object-store/util/bson/regular_expression.hpp \
+  /Users/dominic.frei/Repositories/RealmBootcamp/src/realm/object-store/util/bson/min_key.hpp \
+  /Users/dominic.frei/Repositories/RealmBootcamp/src/realm/object-store/util/bson/max_key.hpp \
+  /Users/dominic.frei/Repositories/RealmBootcamp/src/realm/object-store/util/bson/mongo_timestamp.hpp \
+  /Users/dominic.frei/Repositories/RealmBootcamp/src/realm/binary_data.hpp \
+  /Users/dominic.frei/Repositories/RealmBootcamp/src/realm/owned_data.hpp \
+  /Users/dominic.frei/Repositories/RealmBootcamp/src/realm/util/assert.hpp \
+  /Users/dominic.frei/Repositories/RealmBootcamp/src/realm/util/features.h \
+  /Users/dominic.frei/Repositories/RealmBootcamp/build.debug/src/realm/util/config.h \
+  /Users/dominic.frei/Repositories/RealmBootcamp/src/realm/util/terminate.hpp \
+  /Users/dominic.frei/Repositories/RealmBootcamp/src/realm/util/to_string.hpp \
+  /Users/dominic.frei/Repositories/RealmBootcamp/src/realm/version.hpp \
+  /Users/dominic.frei/Repositories/RealmBootcamp/build.debug/src/realm/version_numbers.hpp \
+  /Users/dominic.frei/Repositories/RealmBootcamp/src/realm/utilities.hpp \
+  /Users/dominic.frei/Repositories/RealmBootcamp/src/realm/util/safe_int_ops.hpp \
+  /Users/dominic.frei/Repositories/RealmBootcamp/src/realm/util/type_traits.hpp \
+  /Users/dominic.frei/Repositories/RealmBootcamp/src/realm/util/type_list.hpp \
+  /Users/dominic.frei/Repositories/RealmBootcamp/src/realm/timestamp.hpp \
+  /Users/dominic.frei/Repositories/RealmBootcamp/src/realm/null.hpp \
+  /Users/dominic.frei/Repositories/RealmBootcamp/src/realm/util/optional.hpp \
+  /Users/dominic.frei/Repositories/RealmBootcamp/src/realm/util/backtrace.hpp \
+  /Users/dominic.frei/Repositories/RealmBootcamp/src/realm/exceptions.hpp \
+  /Users/dominic.frei/Repositories/RealmBootcamp/src/realm/decimal128.hpp \
+  /Users/dominic.frei/Repositories/RealmBootcamp/src/realm/string_data.hpp \
+  /Users/dominic.frei/Repositories/RealmBootcamp/src/realm/object_id.hpp \
+  /Users/dominic.frei/Repositories/RealmBootcamp/src/realm/uuid.hpp \
+  /Users/dominic.frei/Repositories/RealmBootcamp/src/external/json/json.hpp

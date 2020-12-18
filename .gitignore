@@ -22,9 +22,9 @@ CTestTestfile.cmake
 Makefile
 Realm.xcodeproj
 CMakeScripts
-/build.debug/src
 /build.debug/test
-/build.debug/build
+*.a
+*.dylib
 
 # Ignore all user files except one which includes execution path for test
 *.user
