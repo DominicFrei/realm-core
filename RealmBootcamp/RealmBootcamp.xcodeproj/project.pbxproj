@@ -355,6 +355,13 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		7D026F022590C1DA0040D33E /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		7D8A31352590B3BD00585A2E = {
 			isa = PBXGroup;
 			children = (
@@ -364,6 +371,7 @@
 				7D026D3E2590B4AE0040D33E /* RealmC */,
 				7D026D492590B4AE0040D33E /* RealmCTests */,
 				7D8A31402590B3BD00585A2E /* Products */,
+				7D026F022590C1DA0040D33E /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -846,6 +854,7 @@
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				HEADER_SEARCH_PATHS = "\"$(SRCROOT)/../src/\"";
 				INFOPLIST_FILE = RealmC/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -854,6 +863,7 @@
 					"@loader_path/Frameworks",
 				);
 				MODULEMAP_FILE = "$(SRCROOT)/RealmC/module.modulemap";
+				OTHER_LDFLAGS = "-lrealm-ffi-dbg";
 				PRODUCT_BUNDLE_IDENTIFIER = io.realm.RealmC;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
@@ -870,6 +880,7 @@
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				HEADER_SEARCH_PATHS = "\"$(SRCROOT)/../src/\"";
 				INFOPLIST_FILE = RealmC/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -878,6 +889,7 @@
 					"@loader_path/Frameworks",
 				);
 				MODULEMAP_FILE = "$(SRCROOT)/RealmC/module.modulemap";
+				OTHER_LDFLAGS = "-lrealm-ffi-dbg";
 				PRODUCT_BUNDLE_IDENTIFIER = io.realm.RealmC;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
