@@ -6,6 +6,7 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "realm/realm.h"
 
 //! Project version number for RealmC.
 FOUNDATION_EXPORT double RealmCVersionNumber;
