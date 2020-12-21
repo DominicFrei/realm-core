@@ -46,23 +46,23 @@ class RealmBootcampTests: XCTestCase {
         let propertyName3 = realm_string(data: strdup("z"), size: "z".count)
         let emptyString = realm_string(data: strdup(""), size: "".count)
         var property1 = realm_property_info_t()
-        property1.name = realm_string(data: strdup("x"), size: "x".count)
+        property1.name = propertyName1
         property1.public_name = emptyString
         property1.type = RLM_PROPERTY_TYPE_INT
         property1.flags = Int32(RLM_PROPERTY_PRIMARY_KEY.rawValue)
         var property2 = realm_property_info_t()
-        property2.name = realm_string(data: strdup("y"), size: "y".count)
+        property2.name = propertyName2
         property2.public_name = emptyString
         property2.type = RLM_PROPERTY_TYPE_INT
         property2.flags = Int32(RLM_PROPERTY_NORMAL.rawValue)
         var property3 = realm_property_info_t()
-        property3.name = realm_string(data: strdup("z"), size: "z".count)
+        property3.name = propertyName3
         property3.public_name = emptyString
         property3.type = RLM_PROPERTY_TYPE_INT
         property3.flags = Int32(RLM_PROPERTY_NORMAL.rawValue)
-        var classProperties = [property1, property2, property3]
-        var unsafeBufferPointer = classProperties.withUnsafeBufferPointer({$0.baseAddress})
-        var unsafeMutablePointer = UnsafeMutablePointer<UnsafePointer<realm_property_info_t>?>.allocate(capacity: 3)
+        let classProperties = [property1, property2, property3]
+        let unsafeBufferPointer = classProperties.withUnsafeBufferPointer({$0.baseAddress})
+        let unsafeMutablePointer = UnsafeMutablePointer<UnsafePointer<realm_property_info_t>?>.allocate(capacity: 3)
         for index in 0...3 {
             unsafeMutablePointer.advanced(by: index).pointee = unsafeBufferPointer
         }
@@ -88,7 +88,7 @@ class RealmBootcampTests: XCTestCase {
         var primaryKeyValue = realm_value_t()
         primaryKeyValue.integer = 42
         primaryKeyValue.type = RLM_TYPE_INT
-        var object = realm_object_create_with_primary_key(realm, classInfo.key, primaryKeyValue);
+        let object = realm_object_create_with_primary_key(realm, classInfo.key, primaryKeyValue);
         realm_commit(realm)
         assert(realm_object_is_valid(object))
 
@@ -106,10 +106,10 @@ class RealmBootcampTests: XCTestCase {
         var pkValue = realm_value_t()
         pkValue.integer = 42
         pkValue.type = RLM_TYPE_INT
-        var retrievedObject = realm_object_find_with_primary_key(realm, outClassInfo.key, pkValue, &found)
+        let retrievedObject = realm_object_find_with_primary_key(realm, outClassInfo.key, pkValue, &found)
 
         // Read the value of 'x'.
-        var tableKey = outClassInfo.key
+        let tableKey = outClassInfo.key
         var outColumnKeys = realm_col_key_t()
         var outNumber = size_t()
         realm_get_property_keys(realm, tableKey, &outColumnKeys, 42, &outNumber)
