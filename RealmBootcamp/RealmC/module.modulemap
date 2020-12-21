@@ -1,0 +1,4 @@
+module RealmC {
+    umbrella header "../../src/realm/realm.h"
+    export *
+}
