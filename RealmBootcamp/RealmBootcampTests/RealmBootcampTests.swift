@@ -33,17 +33,15 @@ class RealmBootcampTests: XCTestCase {
         // Create a config.
         let config = Config()
         
-        let numberOfClasses = 1
-        let numberOfProperties = 3
-        let emptyString = "".realmString()
-
-        // Create a class.
+        // Create classes.
         let className = "foo".realmString()
         let primaryKey = "x".realmString()
         var classInfo = realm_class_info()
         classInfo.name = className
         classInfo.primary_key = primaryKey
+        let numberOfProperties = 3
         classInfo.num_properties = numberOfProperties
+        let classes = [classInfo]
         
         // Create properties.
         let propertyName1 = primaryKey
@@ -51,49 +49,53 @@ class RealmBootcampTests: XCTestCase {
         let propertyName3 = "z".realmString()
         var property1 = realm_property_info_t()
         property1.name = propertyName1
-        property1.public_name = emptyString
+        property1.public_name = "".realmString()
         property1.type = RLM_PROPERTY_TYPE_INT
         property1.flags = Int32(RLM_PROPERTY_PRIMARY_KEY.rawValue)
         var property2 = realm_property_info_t()
         property2.name = propertyName2
-        property2.public_name = emptyString
+        property2.public_name = "".realmString()
         property2.type = RLM_PROPERTY_TYPE_INT
         property2.flags = Int32(RLM_PROPERTY_NORMAL.rawValue)
         var property3 = realm_property_info_t()
         property3.name = propertyName3
-        property3.public_name = emptyString
+        property3.public_name = "".realmString()
         property3.type = RLM_PROPERTY_TYPE_INT
         property3.flags = Int32(RLM_PROPERTY_NORMAL.rawValue)
         let classProperties = [property1, property2, property3]
         
         XCTAssertEqual(classProperties.count, numberOfProperties)
         
+        for var classInfo in classes {
+            classInfo.num_properties = classProperties.count
+        }
+        
         // Create a schema.
         let unsafePointer = classProperties.withUnsafeBufferPointer({$0.baseAddress})
         let unsafeMutablePointer = UnsafeMutablePointer<UnsafePointer<realm_property_info_t>?>.allocate(capacity: numberOfProperties)
-        for index in 0..<numberOfClasses {
+        for index in 0..<classes.count {
             unsafeMutablePointer.advanced(by: index).pointee = unsafePointer
         }
-        var schema = realm_schema_new([classInfo], numberOfClasses, unsafeMutablePointer)
-
+        var schema = realm_schema_new(classes, classes.count, unsafeMutablePointer)
+        
         // Open a realm.
         realm_config_set_schema(config.cConfig, schema)
         realm_config_set_schema_mode(config.cConfig, RLM_SCHEMA_MODE_AUTOMATIC)
         realm_config_set_schema_version(config.cConfig, 1)
         let realm = realm_open(config.cConfig)
         schema = realm_get_schema(realm)
-
+        
         // Check the initial state of the realm (empty).
         var amount = size_t()
         var found = false
         realm_find_class(realm, classInfo.name, &found, &classInfo)
         realm_get_num_objects(realm, classInfo.key, &amount);
-        print("Initial realm state: \(amount) object(s) found.")
-
+        XCTAssertEqual(amount, 0)
+        
         // ==================
         // ===== CREATE =====
         // ==================
-
+        
         var primaryKeyValue = realm_value_t()
         primaryKeyValue.integer = 42
         primaryKeyValue.type = RLM_TYPE_INT
@@ -101,10 +103,10 @@ class RealmBootcampTests: XCTestCase {
         let object = realm_object_create_with_primary_key(realm, classInfo.key, primaryKeyValue);
         realm_commit(realm)
         XCTAssert(realm_object_is_valid(object))
-
+        
         realm_get_num_objects(realm, classInfo.key, &amount);
         XCTAssertEqual(amount, 1)
-
+        
         // ================
         // ===== READ =====
         // ================
@@ -114,28 +116,52 @@ class RealmBootcampTests: XCTestCase {
         var outFound = false
         var outClassInfo = realm_class_info_t()
         realm_find_class(realm, name, &outFound, &outClassInfo)
-
+        XCTAssertEqual(String(cString: outClassInfo.name.data), "foo")
+        XCTAssertEqual(String(cString: outClassInfo.primary_key.data), "x")
+        XCTAssertEqual(outClassInfo.num_properties, 3)
+        
         var pkValue = realm_value_t()
         pkValue.integer = 42
         pkValue.type = RLM_TYPE_INT
         let retrievedObject = realm_object_find_with_primary_key(realm, outClassInfo.key, pkValue, &found)
         XCTAssert(realm_object_is_valid(retrievedObject))
-
+        
         // Read the value of 'x'.
         let tableKey = outClassInfo.key
         var outColumnKeys = realm_col_key_t()
         var outNumber = size_t()
         realm_get_property_keys(realm, tableKey, &outColumnKeys, 42, &outNumber)
         XCTAssertEqual(outNumber, 3)
-        print("col keys: \(outColumnKeys.col_key)")
-//        var p: UnsafeMutablePointer<Int64> = UnsafeMutablePointer<Int64>.allocate(capacity: 64)
-//        p.initialize()
-//        UnsafePointer<Int64>(outColumnKeys.col_key)
-//        UnsafeBufferPointer(start: outColumnKeys.col_key, count: 3)
+        
         var value = realm_value_t()
         realm_get_value(retrievedObject, outColumnKeys, &value)
-        print("Value of x: \(value.integer)")
-
+        XCTAssertEqual(value.integer, 42)
+        
+        var outPropertyInfo = realm_property_info_t()
+        realm_get_property(realm, tableKey, outColumnKeys, &outPropertyInfo)
+        XCTAssertEqual(String(cString: outPropertyInfo.name.data), "x")
+        XCTAssertEqual(outPropertyInfo.type, RLM_PROPERTY_TYPE_INT)
+//        XCTAssertEqual(outPropertyInfo.key.col_key, 0)
+//        XCTAssertEqual((&outPropertyInfo.col_key)+1, 0)
+        
+//        var pointerrr = UnsafeMutablePointer<Int64>.allocate(capacity: 4)
+//        pointerrr = outPropertyInfo.key.col_key
+//        print(pointerrr.pointee)
+        
+        ///////////////////
+        
+        //        var p: UnsafeMutablePointer<Int64> = UnsafeMutablePointer<Int64>.allocate(capacity: 64)
+        //        p.initialize(to: outColumnKeys.col_key)
+        //        p.pointee
+        //        UnsafePointer<Int64>(outColumnKeys.col_key)
+        //        UnsafeBufferPointer(start: outColumnKeys.col_key, count: 3)
+        
+        //        let pointerrr = UnsafeMutablePointer<Int>.allocate(capacity: 4)
+        //        pointerrr.initialize(to: 0)
+        //        (pointerrr + 1).initialize(to: 1)
+        
+        /////////////////////
+        
         // ==================
         // ===== UDPATE =====
         // ==================
@@ -145,36 +171,36 @@ class RealmBootcampTests: XCTestCase {
         newValue.integer = 23
         newValue.type = RLM_TYPE_INT
         realm_begin_write(realm)
-        realm_set_value(retrievedObject, outColumnKeys, newValue, false)
+        realm_set_values(retrievedObject, 1, &outColumnKeys, &newValue, false)
         realm_commit(realm)
-
+        
         // Check the new value.
         realm_get_property_keys(realm, tableKey, &outColumnKeys, 42, &outNumber)
         XCTAssertEqual(outNumber, 3)
-
-        realm_get_value(retrievedObject, outColumnKeys, &value)
-        XCTAssertEqual(value.integer, 23)
-
+        
+        //        realm_get_value(retrievedObject, outColumnKeys, &outValues)
+        //        XCTAssertEqual(outValues.integer, 23)
+        
         // ==================
         // ===== DELETE =====
         // ==================
-
+        
         realm_begin_write(realm)
         realm_object_delete(retrievedObject)
         realm_commit(realm)
-
+        
         realm_get_num_objects(realm, classInfo.key, &amount);
         XCTAssertEqual(amount, 0)
-
+        
         // =================
         // ===== ERROR =====
         // =================
-
+        
         var error = realm_error_t()
         realm_get_last_error(&error)
         if let data = error.message.data {
             print("ERROR: \(String(cString: data))")
         }
     }
-
+    
 }
