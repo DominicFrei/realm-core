@@ -85,7 +85,7 @@ class RealmBootcampTests: XCTestCase {
         XCTAssert(realm_object_is_valid(object))
 
         realm_get_num_objects(realm, classInfo.key, &amount);
-        print("\(amount) object(s) found.")
+        print("Result of CREATE: \(amount) object(s) found.")
 
         // ===== READ =====
         // Find object of class 'foo' with primary key 'x' = 42
@@ -106,7 +106,7 @@ class RealmBootcampTests: XCTestCase {
         var outNumber = size_t()
         realm_get_property_keys(realm, tableKey, &outColumnKeys, 42, &outNumber)
         XCTAssertEqual(outNumber, 3)
-        print(outColumnKeys.col_key)
+        print("col keys: \(outColumnKeys.col_key)")
         //var p: UnsafeMutablePointer<Int64> = UnsafeMutablePointer<Int64>.allocate(capacity: 64)
         //p.initialize()
         //UnsafePointer<Int64>(outColumnKeys.col_key)
@@ -114,7 +114,7 @@ class RealmBootcampTests: XCTestCase {
 
         var value = realm_value_t()
         realm_get_value(retrievedObject, outColumnKeys, &value)
-        print(value.integer)
+        print("Value of x: \(value.integer)")
 
         // ===== UDPATE =====
         // Update the property 'x' in 'foo' to be '23'.
@@ -129,10 +129,9 @@ class RealmBootcampTests: XCTestCase {
         // Check again
         realm_get_property_keys(realm, tableKey, &outColumnKeys, 42, &outNumber)
         XCTAssertEqual(outNumber, 3)
-        print(outColumnKeys)
 
         realm_get_value(retrievedObject, outColumnKeys, &value)
-        print(value.integer)
+        print("Value of x after update: \(value.integer)")
 
         // ===== DELETE =====
 
@@ -141,14 +140,14 @@ class RealmBootcampTests: XCTestCase {
         realm_commit(realm)
 
         realm_get_num_objects(realm, classInfo.key, &amount);
-        print("\(amount) object(s) found.")
+        print("Result of DELETE: \(amount) object(s) found.")
 
         // =====
 
         var error = realm_error_t()
         realm_get_last_error(&error)
         if let data = error.message.data {
-            print(String(cString: data))
+            print("ERROR: \(String(cString: data))")
         }
     }
 
