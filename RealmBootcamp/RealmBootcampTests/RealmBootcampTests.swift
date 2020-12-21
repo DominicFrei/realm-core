@@ -11,15 +11,7 @@ import RealmC
 
 class RealmBootcampTests: XCTestCase {
 
-    override func setUpWithError() throws {
-        // Put setup code here. This method is called before the invocation of each test method in the class.
-    }
-
-    override func tearDownWithError() throws {
-        // Put teardown code here. This method is called after the invocation of each test method in the class.
-    }
-
-    public struct Config {
+    struct Config {
         let cConfig: OpaquePointer
         public init() {
             self.cConfig = realm_config_new()
@@ -90,7 +82,7 @@ class RealmBootcampTests: XCTestCase {
         primaryKeyValue.type = RLM_TYPE_INT
         let object = realm_object_create_with_primary_key(realm, classInfo.key, primaryKeyValue);
         realm_commit(realm)
-        assert(realm_object_is_valid(object))
+        XCTAssert(realm_object_is_valid(object))
 
         realm_get_num_objects(realm, classInfo.key, &amount);
         print("\(amount) object(s) found.")
@@ -113,7 +105,7 @@ class RealmBootcampTests: XCTestCase {
         var outColumnKeys = realm_col_key_t()
         var outNumber = size_t()
         realm_get_property_keys(realm, tableKey, &outColumnKeys, 42, &outNumber)
-        assert(outNumber == 3)
+        XCTAssertEqual(outNumber, 3)
         print(outColumnKeys.col_key)
         //var p: UnsafeMutablePointer<Int64> = UnsafeMutablePointer<Int64>.allocate(capacity: 64)
         //p.initialize()
@@ -136,7 +128,7 @@ class RealmBootcampTests: XCTestCase {
 
         // Check again
         realm_get_property_keys(realm, tableKey, &outColumnKeys, 42, &outNumber)
-        assert(outNumber == 3)
+        XCTAssertEqual(outNumber, 3)
         print(outColumnKeys)
 
         realm_get_value(retrievedObject, outColumnKeys, &value)
