@@ -11,8 +11,19 @@
 		7D026D4B2590B4AE0040D33E /* RealmCTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D026D4A2590B4AE0040D33E /* RealmCTests.swift */; };
 		7D026D4D2590B4AE0040D33E /* RealmC.h in Headers */ = {isa = PBXBuildFile; fileRef = 7D026D3F2590B4AE0040D33E /* RealmC.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		7D8A31492590B3BD00585A2E /* RealmBootcamp.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7D8A313F2590B3BD00585A2E /* RealmBootcamp.framework */; };
-		7D8A314E2590B3BD00585A2E /* RealmBootcampTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D8A314D2590B3BD00585A2E /* RealmBootcampTests.swift */; };
+		7D8A314E2590B3BD00585A2E /* C-API-Tests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D8A314D2590B3BD00585A2E /* C-API-Tests.swift */; };
 		7D8A31502590B3BD00585A2E /* RealmBootcamp.h in Headers */ = {isa = PBXBuildFile; fileRef = 7D8A31422590B3BD00585A2E /* RealmBootcamp.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		7D938009259224A900F651A5 /* Property.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D938008259224A900F651A5 /* Property.swift */; };
+		7D93801C2592435F00F651A5 /* Configuration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D93801B2592435F00F651A5 /* Configuration.swift */; };
+		7D9380222592450900F651A5 /* String+RealmString.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D9380212592450900F651A5 /* String+RealmString.swift */; };
+		7D93802825924C0000F651A5 /* Foo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D93802725924C0000F651A5 /* Foo.swift */; };
+		7D93802E25924EC800F651A5 /* Bar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D93802D25924EC800F651A5 /* Bar.swift */; };
+		7D938034259252A600F651A5 /* Baz.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D938033259252A600F651A5 /* Baz.swift */; };
+		7D93803A2592535A00F651A5 /* Schema.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D9380392592535A00F651A5 /* Schema.swift */; };
+		7D9380402592576900F651A5 /* Realm.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D93803F2592576900F651A5 /* Realm.swift */; };
+		7D9A70CD25920F6600164FE4 /* CreateObjectTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D9A70CC25920F6600164FE4 /* CreateObjectTests.swift */; };
+		7D9A71442592128B00164FE4 /* Game.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D9A71432592128B00164FE4 /* Game.swift */; };
+		7D9A714E259212E100164FE4 /* Persistable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D9A714D259212E100164FE4 /* Persistable.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -262,8 +273,19 @@
 		7D8A31422590B3BD00585A2E /* RealmBootcamp.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RealmBootcamp.h; sourceTree = "<group>"; };
 		7D8A31432590B3BD00585A2E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		7D8A31482590B3BD00585A2E /* RealmBootcampTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = RealmBootcampTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		7D8A314D2590B3BD00585A2E /* RealmBootcampTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RealmBootcampTests.swift; sourceTree = "<group>"; };
+		7D8A314D2590B3BD00585A2E /* C-API-Tests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "C-API-Tests.swift"; sourceTree = "<group>"; };
 		7D8A314F2590B3BD00585A2E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		7D938008259224A900F651A5 /* Property.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Property.swift; sourceTree = "<group>"; };
+		7D93801B2592435F00F651A5 /* Configuration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Configuration.swift; sourceTree = "<group>"; };
+		7D9380212592450900F651A5 /* String+RealmString.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+RealmString.swift"; sourceTree = "<group>"; };
+		7D93802725924C0000F651A5 /* Foo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Foo.swift; sourceTree = "<group>"; };
+		7D93802D25924EC800F651A5 /* Bar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Bar.swift; sourceTree = "<group>"; };
+		7D938033259252A600F651A5 /* Baz.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Baz.swift; sourceTree = "<group>"; };
+		7D9380392592535A00F651A5 /* Schema.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Schema.swift; sourceTree = "<group>"; };
+		7D93803F2592576900F651A5 /* Realm.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Realm.swift; sourceTree = "<group>"; };
+		7D9A70CC25920F6600164FE4 /* CreateObjectTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateObjectTests.swift; sourceTree = "<group>"; };
+		7D9A71432592128B00164FE4 /* Game.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Game.swift; sourceTree = "<group>"; };
+		7D9A714D259212E100164FE4 /* Persistable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Persistable.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -391,6 +413,12 @@
 			children = (
 				7D8A31422590B3BD00585A2E /* RealmBootcamp.h */,
 				7D8A31432590B3BD00585A2E /* Info.plist */,
+				7D9A714D259212E100164FE4 /* Persistable.swift */,
+				7D938008259224A900F651A5 /* Property.swift */,
+				7D93801B2592435F00F651A5 /* Configuration.swift */,
+				7D9380392592535A00F651A5 /* Schema.swift */,
+				7D93803F2592576900F651A5 /* Realm.swift */,
+				7D9380212592450900F651A5 /* String+RealmString.swift */,
 			);
 			path = RealmBootcamp;
 			sourceTree = "<group>";
@@ -398,10 +426,23 @@
 		7D8A314C2590B3BD00585A2E /* RealmBootcampTests */ = {
 			isa = PBXGroup;
 			children = (
-				7D8A314D2590B3BD00585A2E /* RealmBootcampTests.swift */,
+				7D93800E2592256E00F651A5 /* User Perspective */,
+				7D8A314D2590B3BD00585A2E /* C-API-Tests.swift */,
+				7D93802725924C0000F651A5 /* Foo.swift */,
+				7D93802D25924EC800F651A5 /* Bar.swift */,
+				7D938033259252A600F651A5 /* Baz.swift */,
 				7D8A314F2590B3BD00585A2E /* Info.plist */,
 			);
 			path = RealmBootcampTests;
+			sourceTree = "<group>";
+		};
+		7D93800E2592256E00F651A5 /* User Perspective */ = {
+			isa = PBXGroup;
+			children = (
+				7D9A70CC25920F6600164FE4 /* CreateObjectTests.swift */,
+				7D9A71432592128B00164FE4 /* Game.swift */,
+			);
+			path = "User Perspective";
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -517,6 +558,7 @@
 					};
 					7D8A313E2590B3BD00585A2E = {
 						CreatedOnToolsVersion = 12.2;
+						LastSwiftMigration = 1220;
 					};
 					7D8A31472590B3BD00585A2E = {
 						CreatedOnToolsVersion = 12.2;
@@ -808,6 +850,12 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				7D93801C2592435F00F651A5 /* Configuration.swift in Sources */,
+				7D9380222592450900F651A5 /* String+RealmString.swift in Sources */,
+				7D938009259224A900F651A5 /* Property.swift in Sources */,
+				7D9A714E259212E100164FE4 /* Persistable.swift in Sources */,
+				7D93803A2592535A00F651A5 /* Schema.swift in Sources */,
+				7D9380402592576900F651A5 /* Realm.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -815,7 +863,12 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				7D8A314E2590B3BD00585A2E /* RealmBootcampTests.swift in Sources */,
+				7D93802E25924EC800F651A5 /* Bar.swift in Sources */,
+				7D938034259252A600F651A5 /* Baz.swift in Sources */,
+				7D93802825924C0000F651A5 /* Foo.swift in Sources */,
+				7D9A70CD25920F6600164FE4 /* CreateObjectTests.swift in Sources */,
+				7D9A71442592128B00164FE4 /* Game.swift in Sources */,
+				7D8A314E2590B3BD00585A2E /* C-API-Tests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1063,13 +1116,17 @@
 		7D8A31542590B3BD00585A2E /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				DEFINES_MODULE = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
-				HEADER_SEARCH_PATHS = "\"$(SRCROOT)/../src/\"";
+				HEADER_SEARCH_PATHS = (
+					"\"$(SRCROOT)/../src/\"",
+					"\"$(SRCROOT)/RealmC\"",
+				);
 				INFOPLIST_FILE = RealmBootcamp/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -1077,9 +1134,11 @@
 					"@executable_path/../Frameworks",
 					"@loader_path/Frameworks",
 				);
+				OTHER_LDFLAGS = "-lrealm-ffi-dbg";
 				PRODUCT_BUNDLE_IDENTIFIER = io.realm.RealmBootcamp;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 			};
 			name = Debug;
@@ -1087,13 +1146,17 @@
 		7D8A31552590B3BD00585A2E /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				DEFINES_MODULE = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
-				HEADER_SEARCH_PATHS = "\"$(SRCROOT)/../src/\"";
+				HEADER_SEARCH_PATHS = (
+					"\"$(SRCROOT)/../src/\"",
+					"\"$(SRCROOT)/RealmC\"",
+				);
 				INFOPLIST_FILE = RealmBootcamp/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -1101,6 +1164,7 @@
 					"@executable_path/../Frameworks",
 					"@loader_path/Frameworks",
 				);
+				OTHER_LDFLAGS = "-lrealm-ffi-dbg";
 				PRODUCT_BUNDLE_IDENTIFIER = io.realm.RealmBootcamp;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
@@ -1111,6 +1175,7 @@
 		7D8A31572590B3BD00585A2E /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				HEADER_SEARCH_PATHS = (
@@ -1133,6 +1198,7 @@
 		7D8A31582590B3BD00585A2E /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				HEADER_SEARCH_PATHS = (
