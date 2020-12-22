@@ -126,27 +126,63 @@ class RealmBootcampTests: XCTestCase {
         let retrievedObject = realm_object_find_with_primary_key(realm, outClassInfo.key, pkValue, &found)
         XCTAssert(realm_object_is_valid(retrievedObject))
         
-        // Read the value of 'x'.
+        // Read all values of this object.
         let tableKey = outClassInfo.key
-        var outColumnKeys = realm_col_key_t()
+        var outColumnKeys = [realm_col_key_t]()
         var outNumber = size_t()
-        realm_get_property_keys(realm, tableKey, &outColumnKeys, 42, &outNumber)
+        realm_get_property_keys(realm, tableKey, &outColumnKeys, 3, &outNumber)
         XCTAssertEqual(outNumber, 3)
         
-        var value = realm_value_t()
-        realm_get_value(retrievedObject, outColumnKeys, &value)
-        XCTAssertEqual(value.integer, 42)
+        var outValues = realm_value_t()
+        let success = realm_get_values(retrievedObject, 3, outColumnKeys, &outValues)
+        XCTAssert(success)
         
-        var outPropertyInfo = realm_property_info_t()
-        realm_get_property(realm, tableKey, outColumnKeys, &outPropertyInfo)
-        XCTAssertEqual(String(cString: outPropertyInfo.name.data), "x")
-        XCTAssertEqual(outPropertyInfo.type, RLM_PROPERTY_TYPE_INT)
-//        XCTAssertEqual(outPropertyInfo.key.col_key, 0)
-//        XCTAssertEqual((&outPropertyInfo.col_key)+1, 0)
+        withUnsafeMutablePointer(to: &outValues) { (unsafeMutablePointer) -> Void in
+            let firstProperty: realm_value_t = unsafeMutablePointer.pointee
+            XCTAssertEqual(firstProperty.type, RLM_TYPE_INT)
+            XCTAssertEqual(firstProperty.integer, 42)
+            
+            let secondProperty: realm_value_t = unsafeMutablePointer.advanced(by: 1).pointee
+            XCTAssertEqual(secondProperty.type, RLM_TYPE_INT)
+            XCTAssertEqual(secondProperty.integer, 0)
+            
+            let thirdProperty: realm_value_t = unsafeMutablePointer.advanced(by: 2).pointee
+            XCTAssertEqual(thirdProperty.type, RLM_TYPE_INT)
+            XCTAssertEqual(thirdProperty.integer, 0)
+        }
         
-//        var pointerrr = UnsafeMutablePointer<Int64>.allocate(capacity: 4)
-//        pointerrr = outPropertyInfo.key.col_key
-//        print(pointerrr.pointee)
+        
+        
+        // realm_get_class_properties
+        // realm_get_property_keys
+        // realm_get_property
+        
+        // realm_find_property
+        // realm_find_property_by_public_name
+        // realm_find_primary_key_property
+        
+        // realm_get_value
+        // realm_get_values
+        // realm_set_value
+        // realm_set_values
+        
+        
+        //        var outProperties = realm_property_info_t()
+        //        var numberOfClassProperties = size_t()
+        //        realm_get_class_properties(realm, tableKey, &outProperties, 3, &numberOfClassProperties)
+        
+        
+        
+        //        var outPropertyInfo = realm_property_info_t()
+        //        realm_get_property(realm, tableKey, outColumnKeys, &outPropertyInfo)
+        //        XCTAssertEqual(String(cString: outPropertyInfo.name.data), "x")
+        //        XCTAssertEqual(outPropertyInfo.type, RLM_PROPERTY_TYPE_INT)
+        //        XCTAssertEqual(outPropertyInfo.key.col_key, 0)
+        //        XCTAssertEqual((&outPropertyInfo.col_key)+1, 0)
+        
+        //        var pointerrr = UnsafeMutablePointer<Int64>.allocate(capacity: 4)
+        //        pointerrr = outPropertyInfo.key.col_key
+        //        print(pointerrr.pointee)
         
         ///////////////////
         
@@ -162,6 +198,15 @@ class RealmBootcampTests: XCTestCase {
         
         /////////////////////
         
+        
+        
+        
+        
+        
+        
+        
+        
+        
         // ==================
         // ===== UDPATE =====
         // ==================
@@ -175,11 +220,8 @@ class RealmBootcampTests: XCTestCase {
         realm_commit(realm)
         
         // Check the new value.
-        realm_get_property_keys(realm, tableKey, &outColumnKeys, 42, &outNumber)
-        XCTAssertEqual(outNumber, 3)
-        
-        //        realm_get_value(retrievedObject, outColumnKeys, &outValues)
-        //        XCTAssertEqual(outValues.integer, 23)
+        realm_get_values(retrievedObject, 3, outColumnKeys, &outValues)
+        XCTAssertEqual(outValues.integer, 23)
         
         // ==================
         // ===== DELETE =====
