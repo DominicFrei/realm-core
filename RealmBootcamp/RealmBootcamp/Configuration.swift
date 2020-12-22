@@ -27,9 +27,13 @@ struct Configuration {
     }
     
     func apply(schema: Schema, mode: realm_schema_mode_e, version: UInt64) {
-        realm_config_set_schema(cConfig, schema.cSchema)
-        realm_config_set_schema_mode(cConfig, mode)
-        realm_config_set_schema_version(cConfig, version)
+        var success: Bool
+        success = realm_config_set_schema(cConfig, schema.cSchema)
+        assert(success)
+        success = realm_config_set_schema_mode(cConfig, mode)
+        assert(success)
+        success = realm_config_set_schema_version(cConfig, version)
+        assert(success)
     }
     
 }

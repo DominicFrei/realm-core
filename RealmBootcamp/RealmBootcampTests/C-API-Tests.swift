@@ -13,40 +13,27 @@ class cApiTests: XCTestCase {
     
     func testCApi_Foo() {
         
+        let testClass = Foo(x: 0, y: 0, z: 0)
+        
         realm_clear_last_error()
+        var success = false
         
         guard let configuration = Configuration() else {
             XCTFail("Configuration must not be nil.")
             return
         }
         
-        // Create classes.
-        let testClass = Foo(x: 0, y: 0, z: 0)
-        let classInfos: [realm_class_info] = [testClass.classInfo()]
-        let classProperties: [[realm_property_info_t]] = [testClass.classProperties()]
-        XCTAssertEqual(classProperties[0].count, testClass.classInfo().num_properties)
-        
-        guard var schema = Schema(classInfos: classInfos, classProperties: classProperties) else {
+        guard var schema = Schema(classes: [testClass]) else {
             XCTFail("Schema must not be nil.")
             return
         }
-        
-        
-        // Open a realm.
-        
         configuration.apply(schema: schema, mode: RLM_SCHEMA_MODE_AUTOMATIC, version: 1)
+        
         let realm = Realm(configuration: configuration)
+        
         schema.cSchema = realm_get_schema(realm.cRealm)
         
-        // Check the initial state of the realm (empty).
-        var amount = size_t()
-        var found = false
-        var newClassInfo = realm_class_info_t()
-        var success = realm_find_class(realm.cRealm, testClass.classInfo().name, &found, &newClassInfo)
-        XCTAssert(success)
-        success = realm_get_num_objects(realm.cRealm, newClassInfo.key, &amount)
-        XCTAssert(success)
-        XCTAssertEqual(amount, 0)
+        let classInfo = realm.classInfo(for: testClass)
         
         
         // ==================
@@ -56,14 +43,15 @@ class cApiTests: XCTestCase {
         var primaryKeyValue = realm_value_t()
         primaryKeyValue.integer = 42
         primaryKeyValue.type = RLM_TYPE_INT
-        success = realm_begin_write(realm.cRealm)
-        XCTAssert(success)
-        let object = realm_object_create_with_primary_key(realm.cRealm, newClassInfo.key, primaryKeyValue)
-        success = realm_commit(realm.cRealm)
+        var object: OpaquePointer?
+        success = realm.write {
+            object = realm_object_create_with_primary_key(realm.cRealm, classInfo.key, primaryKeyValue)
+        }
         XCTAssert(success)
         XCTAssert(realm_object_is_valid(object))
         
-        success = realm_get_num_objects(realm.cRealm, newClassInfo.key, &amount)
+        var amount = size_t()
+        success = realm_get_num_objects(realm.cRealm, classInfo.key, &amount)
         XCTAssert(success)
         XCTAssertEqual(amount, 1)
         
@@ -86,6 +74,7 @@ class cApiTests: XCTestCase {
         var pkValue = realm_value_t()
         pkValue.integer = 42
         pkValue.type = RLM_TYPE_INT
+        var found = false
         let retrievedObject = realm_object_find_with_primary_key(realm.cRealm, outClassInfo.key, pkValue, &found)
         XCTAssert(realm_object_is_valid(retrievedObject))
         
@@ -132,11 +121,10 @@ class cApiTests: XCTestCase {
         values.pointee = newFirstValue
         (values + 1).pointee = newSecondValue
         (values + 2).pointee = newThirdValue
-        success = realm_begin_write(realm.cRealm)
-        XCTAssert(success)
-        success = realm_set_values(retrievedObject, 3, outColumnKeys, values, false)
-        XCTAssert(success)
-        success = realm_commit(realm.cRealm)
+        success = realm.write {
+            success = realm_set_values(retrievedObject, 3, outColumnKeys, values, false)
+            XCTAssert(success)
+        }
         XCTAssert(success)
         
         // Check the new value.
@@ -160,14 +148,13 @@ class cApiTests: XCTestCase {
         // ===== DELETE =====
         // ==================
         
-        success = realm_begin_write(realm.cRealm)
-        XCTAssert(success)
-        success = realm_object_delete(retrievedObject)
-        XCTAssert(success)
-        success = realm_commit(realm.cRealm)
+        success = realm.write {
+            success = realm_object_delete(retrievedObject)
+            XCTAssert(success)
+        }
         XCTAssert(success)
         
-        success = realm_get_num_objects(realm.cRealm, newClassInfo.key, &amount);
+        success = realm_get_num_objects(realm.cRealm, classInfo.key, &amount);
         XCTAssert(success)
         XCTAssertEqual(amount, 0)
         
@@ -186,44 +173,27 @@ class cApiTests: XCTestCase {
     
     func testCApi_Baz() {
         
+        let testClass = Baz(x: 0, y: 0, z: "0")
+        
         realm_clear_last_error()
+        var success = false
         
         guard let configuration = Configuration() else {
             XCTFail("Configuration must not be nil.")
             return
         }
         
-        // Create classes.
-        let testClass = Baz(x: 0, y: 0, z: "0")
-        let classInfos: [realm_class_info] = [testClass.classInfo()]
-        let classProperties: [[realm_property_info_t]] = [testClass.classProperties()]
-        XCTAssertEqual(classProperties[0].count, testClass.classInfo().num_properties)
-        
-        guard var schema = Schema(classInfos: classInfos, classProperties: classProperties) else {
+        guard var schema = Schema(classes: [testClass]) else {
             XCTFail("Schema must not be nil.")
             return
         }
+        configuration.apply(schema: schema, mode: RLM_SCHEMA_MODE_AUTOMATIC, version: 1)
         
+        let realm = Realm(configuration: configuration)
         
-        // Open a realm.
-        var success = realm_config_set_schema(configuration.cConfig, schema.cSchema)
-        XCTAssert(success)
-        success = realm_config_set_schema_mode(configuration.cConfig, RLM_SCHEMA_MODE_AUTOMATIC)
-        XCTAssert(success)
-        success = realm_config_set_schema_version(configuration.cConfig, 1)
-        XCTAssert(success)
-        let realm = realm_open(configuration.cConfig)
-        schema.cSchema = realm_get_schema(realm)
+        schema.cSchema = realm_get_schema(realm.cRealm)
         
-        // Check the initial state of the realm (empty).
-        var amount = size_t()
-        var found = false
-        var newClassInfo = realm_class_info_t()
-        success = realm_find_class(realm, testClass.classInfo().name, &found, &newClassInfo)
-        XCTAssert(success)
-        success = realm_get_num_objects(realm, newClassInfo.key, &amount)
-        XCTAssert(success)
-        XCTAssertEqual(amount, 0)
+        let classInfo = realm.classInfo(for: testClass)
         
         
         // ==================
@@ -233,14 +203,15 @@ class cApiTests: XCTestCase {
         var primaryKeyValue = realm_value_t()
         primaryKeyValue.integer = 42
         primaryKeyValue.type = RLM_TYPE_INT
-        success = realm_begin_write(realm)
-        XCTAssert(success)
-        let object = realm_object_create_with_primary_key(realm, newClassInfo.key, primaryKeyValue)
-        success = realm_commit(realm)
+        var object: OpaquePointer?
+        success = realm.write {
+            object = realm_object_create_with_primary_key(realm.cRealm, classInfo.key, primaryKeyValue)
+        }
         XCTAssert(success)
         XCTAssert(realm_object_is_valid(object))
         
-        success = realm_get_num_objects(realm, newClassInfo.key, &amount)
+        var amount = size_t()
+        success = realm_get_num_objects(realm.cRealm, classInfo.key, &amount)
         XCTAssert(success)
         XCTAssertEqual(amount, 1)
         
@@ -254,7 +225,7 @@ class cApiTests: XCTestCase {
         let name = className.realmString()
         var outFound = false
         var outClassInfo = realm_class_info_t()
-        success = realm_find_class(realm, name, &outFound, &outClassInfo)
+        success = realm_find_class(realm.cRealm, name, &outFound, &outClassInfo)
         XCTAssert(success)
         XCTAssertEqual(String(cString: outClassInfo.name.data), className)
         XCTAssertEqual(String(cString: outClassInfo.primary_key.data), "x")
@@ -263,14 +234,15 @@ class cApiTests: XCTestCase {
         var pkValue = realm_value_t()
         pkValue.integer = 42
         pkValue.type = RLM_TYPE_INT
-        let retrievedObject = realm_object_find_with_primary_key(realm, outClassInfo.key, pkValue, &found)
+        var found = false
+        let retrievedObject = realm_object_find_with_primary_key(realm.cRealm, outClassInfo.key, pkValue, &found)
         XCTAssert(realm_object_is_valid(retrievedObject))
         
         // Read all values of this object.
         let tableKey = outClassInfo.key
         let outColumnKeys = UnsafeMutablePointer<realm_col_key_t>.allocate(capacity: 3)
         var outNumber = size_t()
-        success = realm_get_property_keys(realm, tableKey, outColumnKeys, 3, &outNumber)
+        success = realm_get_property_keys(realm.cRealm, tableKey, outColumnKeys, 3, &outNumber)
         XCTAssert(success)
         XCTAssertEqual(outNumber, 3)
         
@@ -309,11 +281,10 @@ class cApiTests: XCTestCase {
         values.pointee = newFirstValue
         (values + 1).pointee = newSecondValue
         (values + 2).pointee = newThirdValue
-        success = realm_begin_write(realm)
-        XCTAssert(success)
-        success = realm_set_values(retrievedObject, 3, outColumnKeys, values, false)
-        XCTAssert(success)
-        success = realm_commit(realm)
+        success = realm.write {
+            success = realm_set_values(retrievedObject, 3, outColumnKeys, values, false)
+            XCTAssert(success)
+        }
         XCTAssert(success)
         
         // Check the new value.
@@ -337,14 +308,13 @@ class cApiTests: XCTestCase {
         // ===== DELETE =====
         // ==================
         
-        success = realm_begin_write(realm)
-        XCTAssert(success)
-        success = realm_object_delete(retrievedObject)
-        XCTAssert(success)
-        success = realm_commit(realm)
+        success = realm.write {
+            success = realm_object_delete(retrievedObject)
+            XCTAssert(success)
+        }
         XCTAssert(success)
         
-        success = realm_get_num_objects(realm, newClassInfo.key, &amount);
+        success = realm_get_num_objects(realm.cRealm, classInfo.key, &amount);
         XCTAssert(success)
         XCTAssertEqual(amount, 0)
         
