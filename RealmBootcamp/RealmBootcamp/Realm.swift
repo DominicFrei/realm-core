@@ -74,4 +74,66 @@ struct Realm {
         assert(amount == 1)
     }
     
+    func find<T: Persistable>(testClass: T) -> (OpaquePointer?, UnsafeMutablePointer<realm_col_key_t>) {
+        // Find object of class 'foo' with primary key 'x' = 42
+        let className = String(describing: type(of: testClass.self))
+        let name = className.realmString()
+        var outFound = false
+        var outClassInfo = realm_class_info_t()
+        var success = realm_find_class(cRealm, name, &outFound, &outClassInfo)
+        assert(success)
+        assert(String(cString: outClassInfo.name.data) == className)
+        assert(String(cString: outClassInfo.primary_key.data) == "x")
+        assert(outClassInfo.num_properties == testClass.properties().count)
+
+        var pkValue = realm_value_t()
+        pkValue.integer = 42
+        pkValue.type = RLM_TYPE_INT
+        var found = false
+        let retrievedObject = realm_object_find_with_primary_key(cRealm, outClassInfo.key, pkValue, &found)
+        assert(realm_object_is_valid(retrievedObject))
+
+        // Read all values of this object.
+        let tableKey = outClassInfo.key
+        let outColumnKeys = UnsafeMutablePointer<realm_col_key_t>.allocate(capacity: 3)
+        var outNumber = size_t()
+        success = realm_get_property_keys(cRealm, tableKey, outColumnKeys, 3, &outNumber)
+        assert(success)
+        assert(outNumber == 3)
+
+        print(outColumnKeys.pointee)
+        print(outColumnKeys.advanced(by: 1).pointee)
+        print(outColumnKeys.advanced(by: 2).pointee)
+
+        let outPropertyInfo1 = UnsafeMutablePointer<realm_property_info_t>.allocate(capacity: 1)
+        realm_get_property(cRealm, outClassInfo.key, outColumnKeys.pointee, outPropertyInfo1)
+        let outPropertyInfo2 = UnsafeMutablePointer<realm_property_info_t>.allocate(capacity: 1)
+        realm_get_property(cRealm, outClassInfo.key, outColumnKeys.advanced(by: 1).pointee, outPropertyInfo2)
+
+        let outValues = UnsafeMutablePointer<realm_value_t>.allocate(capacity: 3)
+        success = realm_get_values(retrievedObject, 3, outColumnKeys, outValues)
+        assert(success)
+
+
+
+        print(String(cString: outPropertyInfo1.pointee.name.data))
+        print(outValues.pointee.integer)
+        print(String(cString: outPropertyInfo2.pointee.name.data))
+        print(outValues.advanced(by: 1).pointee.integer)
+
+        let firstProperty = outValues.pointee
+        assert(firstProperty.type == RLM_TYPE_INT)
+        assert(firstProperty.integer == 42)
+
+        let secondProperty = outValues.advanced(by: 1).pointee
+        assert(secondProperty.type == RLM_TYPE_INT)
+        assert(secondProperty.integer == 0)
+        
+//        var thirdProperty = outValues.advanced(by: 2).pointee
+//        assert(thirdProperty.type, RLM_TYPE_INT)
+//        assert(thirdProperty.integer, 0)
+        
+        return (retrievedObject, outColumnKeys)
+    }
+    
 }

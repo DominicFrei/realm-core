@@ -7,19 +7,11 @@
 
 import RealmC
 
-//let path = "my.realm"
-
-public protocol Persistable {
-    func persist()
+protocol Persistable: Decodable {
     var primaryKey: String { get }
 }
 
 extension Persistable {
-    
-    func persist() {
-//        let configuration = Configuration(path: path)
-//        classInfo()
-    }
     
     func properties() -> [Property] {
         let mirror = Mirror(reflecting: self)

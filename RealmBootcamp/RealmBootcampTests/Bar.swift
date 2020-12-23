@@ -8,9 +8,9 @@
 @testable import RealmBootcamp
 
 struct Bar: Persistable {
-    let x: Int
-    let y: Int
-    let z: Int
+    var x = 0
+    var y = 0
+    var z = 0
     var primaryKey: String {
         return "x"
     }

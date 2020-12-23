@@ -11,13 +11,12 @@ import XCTest
 class CreateObjectTests: XCTestCase {
     
     func test() {
-        let game = Game(releaseYear: 2016)
+        var game = Game()
+        game.releaseYear = 2016
         XCTAssertEqual(game.properties().count, 1)
         XCTAssertEqual(game.properties()[0].label, "releaseYear")
         XCTAssert(game.properties()[0].value is Int)
         XCTAssertEqual(game.properties()[0].value as? Int, 2016)
-        
-        game.persist()
     }
     
 }

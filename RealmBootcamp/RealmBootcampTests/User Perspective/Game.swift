@@ -9,7 +9,7 @@
 
 struct Game: Persistable {
 //    let name: String
-    let releaseYear: Int
+    var releaseYear = 2016
     var primaryKey: String {
         return "releaseYear"
     }

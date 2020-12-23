@@ -8,11 +8,11 @@
 @testable import RealmBootcamp
 
 struct Faz: Persistable {
-    let x: Int
-    let y: Int
-    let z: Int
-    let a: String
-    let b: String
+    var x = 0
+    var y = 0
+    var z = 0
+    var a = ""
+    var b = ""
     var primaryKey: String {
         return "x"
     }
