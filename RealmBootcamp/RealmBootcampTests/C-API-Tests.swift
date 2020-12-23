@@ -9,7 +9,7 @@ import XCTest
 @testable import RealmBootcamp
 import RealmC
 
-class cApiTests: XCTestCase {
+class CApiTests: XCTestCase {
     
     var success = false
     
@@ -26,87 +26,80 @@ class cApiTests: XCTestCase {
         }
     }
     
-    func testClasses() {
+    func testFoo() {
         var foo = Foo()
-        foo[keyPath: \.x] = 42
-        var bar = Bar()
-        bar.x = 42
-        let baz = Baz()
-        bar.x = 42
-        var faz = Faz()
-        faz.x = 42
-        
-        testCApi(foo)
-        testCApi(bar)
-        testCApi(baz)
-        testCApi(faz)
-    }
-    
-    func testCApi<T: Persistable>(_ testClass: T) {
-        
-        let realm = Realm(classes: [testClass.self])!
+        foo.x = 42
+        let realm = Realm(classes: [foo.self])!
         
         // Create:
-        realm.add(testClass)
+        realm.add(foo)
         
         // Read:
-        let (retrievedObject, outColumnKeys) = realm.find(testClass: testClass)
+        let (retrievedObject, outColumnKeys, object) = realm.find(testClass: foo, withPrimaryKey: 42)
+        XCTAssertEqual(object.x, 42)
         
         // Update:
-        var newFirstValue = realm_value_t()
-        newFirstValue.integer = 23
-        newFirstValue.type = RLM_TYPE_INT
-        var newSecondValue = realm_value_t()
-        newSecondValue.integer = 24
-        newSecondValue.type = RLM_TYPE_INT
-//        var newThirdValue = realm_value_t()
-//        newThirdValue.integer = 25
-//        newThirdValue.type = RLM_TYPE_INT
-        let values = UnsafeMutablePointer<realm_value_t>.allocate(capacity: 2)
-        values.pointee = newFirstValue
-        (values + 1).pointee = newSecondValue
-//        (values + 2).pointee = newThirdValue
-        success = realm.write {
-            success = realm_set_values(retrievedObject, 2, outColumnKeys, values, false)
-            XCTAssert(success)
-        }
-        XCTAssert(success)
+        realm.updateValues(for: retrievedObject!, propertyKeys: outColumnKeys)
         
-        // Check the new value.
-        let outValuesAfterUpdate = UnsafeMutablePointer<realm_value_t>.allocate(capacity: 3)
-        success = realm_get_values(retrievedObject, 2, outColumnKeys, outValuesAfterUpdate)
-        XCTAssert(success)
+        // Delete:
+        realm.delete(retrievedObject!, of: foo)
+    }
+    
+    func testBar() {
+        var bar = Bar()
+        bar.x = 42
+        let realm = Realm(classes: [bar.self])!
         
-        let firstPropertyAfterUpdate = outValuesAfterUpdate.pointee
-        XCTAssertEqual(firstPropertyAfterUpdate.type, RLM_TYPE_INT)
-        XCTAssertEqual(firstPropertyAfterUpdate.integer, 23)
+        // Create:
+        realm.add(bar)
         
-        let secondPropertyAfterUpdate = outValuesAfterUpdate.advanced(by: 1).pointee
-        XCTAssertEqual(secondPropertyAfterUpdate.type, RLM_TYPE_INT)
-        XCTAssertEqual(secondPropertyAfterUpdate.integer, 24)
+        // Read:
+        let (retrievedObject, outColumnKeys, object) = realm.find(testClass: bar, withPrimaryKey: 42)
+        XCTAssertEqual(object.x, 42)
         
-//        thirdProperty = outValues.advanced(by: 2).pointee
-//        XCTAssertEqual(thirdProperty.type, RLM_TYPE_INT)
-//        XCTAssertEqual(thirdProperty.integer, 25)
+        // Update:
+        realm.updateValues(for: retrievedObject!, propertyKeys: outColumnKeys)
         
+        // Delete:
+        realm.delete(retrievedObject!, of: bar)
+    }
+    
+    func testBaz() {
+        var baz = Baz()
+        baz.x = 42
+        let realm = Realm(classes: [baz.self])!
         
-        // ==================
-        // ===== DELETE =====
-        // ==================
+        // Create:
+        realm.add(baz)
         
-        success = realm.write {
-            success = realm_object_delete(retrievedObject)
-            XCTAssert(success)
-        }
-        XCTAssert(success)
+        // Read:
+        let (retrievedObject, outColumnKeys, object) = realm.find(testClass: baz, withPrimaryKey: 42)
+        XCTAssertEqual(object.x, 42)
         
-        let classInfo = realm.classInfo(for: testClass)
-        var amount = size_t()
-        success = realm_get_num_objects(realm.cRealm, classInfo.key, &amount);
-        XCTAssert(success)
-        XCTAssertEqual(amount, 0)
+        // Update:
+        realm.updateValues(for: retrievedObject!, propertyKeys: outColumnKeys)
         
+        // Delete:
+        realm.delete(retrievedObject!, of: baz)
+    }
+    
+    func testFaz() {
+        var faz = Faz()
+        faz.x = 42
+        let realm = Realm(classes: [faz.self])!
         
+        // Create:
+        realm.add(faz)
+        
+        // Read:
+        let (retrievedObject, outColumnKeys, object) = realm.find(testClass: faz, withPrimaryKey: 42)
+        XCTAssertEqual(object.x, 42)
+        
+        // Update:
+        realm.updateValues(for: retrievedObject!, propertyKeys: outColumnKeys)
+        
+        // Delete:
+        realm.delete(retrievedObject!, of: faz)
     }
     
 }

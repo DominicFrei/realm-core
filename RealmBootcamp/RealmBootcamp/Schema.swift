@@ -21,8 +21,8 @@ struct Schema {
     }
     
     init?<T: Persistable>(classes: [T]) {
-        let classInfos: [realm_class_info] = classes.map{$0.classInfo()}
-        let classProperties: [[realm_property_info_t]] = classes.map{$0.classProperties()}
+        let classInfos: [realm_class_info] = classes.map {$0.classInfo()}
+        let classProperties: [[realm_property_info_t]] = classes.map {$0.classProperties()}
         self.init(classInfos: classInfos, classProperties: classProperties)
     }
     

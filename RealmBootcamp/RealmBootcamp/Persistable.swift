@@ -7,7 +7,9 @@
 
 import RealmC
 
-protocol Persistable: Decodable {
+protocol Persistable: Codable {
+    // TODO: Extend primary keys to be of any type (not just Int).
+    // TODO: Primary key should be optional.
     var primaryKey: String { get }
 }
 
@@ -36,6 +38,7 @@ extension Persistable {
             propertyInfo.name = propertyName.realmString()
             propertyInfo.public_name = "".realmString()
             
+            // TODO: Add more types.
             switch property.value {
             case is Int:
                 propertyInfo.type = RLM_PROPERTY_TYPE_INT
@@ -45,7 +48,7 @@ extension Persistable {
                 break
             }
             
-            if (self.primaryKey == property.label) {
+            if self.primaryKey == property.label {
                 propertyInfo.flags = Int32(RLM_PROPERTY_PRIMARY_KEY.rawValue)
             } else {
                 propertyInfo.flags = Int32(RLM_PROPERTY_NORMAL.rawValue)
