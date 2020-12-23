@@ -177,7 +177,10 @@ struct Realm {
         return values
     }
     
-    func updateValues(for object: OpaquePointer, propertyKeys: UnsafeMutablePointer<realm_col_key_t>) {
+    func updateValues(for object: OpaquePointer, propertyKeys: UnsafeMutablePointer<realm_col_key_t>, newValues: [Any]) {
+        
+        
+        
         var newFirstValue = realm_value_t()
         newFirstValue.integer = 23
         newFirstValue.type = RLM_TYPE_INT
