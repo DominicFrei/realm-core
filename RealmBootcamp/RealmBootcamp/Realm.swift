@@ -54,4 +54,24 @@ struct Realm {
         return classInfo
     }
     
+    func add<T: Persistable>(_ object: T) {
+        
+        let info = classInfo(for: object)
+        
+        var primaryKeyValue = realm_value_t()
+        primaryKeyValue.integer = 42
+        primaryKeyValue.type = RLM_TYPE_INT
+        var object: OpaquePointer?
+        var success = write {
+            object = realm_object_create_with_primary_key(cRealm, info.key, primaryKeyValue)
+        }
+        assert(success)
+        assert(realm_object_is_valid(object))
+        
+        var amount = size_t()
+        success = realm_get_num_objects(cRealm, info.key, &amount)
+        assert(success)
+        assert(amount == 1)
+    }
+    
 }
