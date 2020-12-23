@@ -10,6 +10,7 @@ import RealmC
 struct Configuration {
     
     let cConfig: OpaquePointer
+    
     let path: String
     
     init?(path: String? = nil) {

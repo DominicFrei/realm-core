@@ -9,12 +9,31 @@ import RealmC
 
 struct Realm {
     
-    let configuration: Configuration
     let cRealm: OpaquePointer
+    
+    var configuration: Configuration
+    var schema: Schema
+    
+    init?<T: Persistable>(classes: [T]) {
+        
+        guard let configuration = Configuration() else {
+            return nil
+        }
+        guard let schema = Schema(classes: classes) else {
+            return nil
+        }
+        
+        configuration.apply(schema: schema, mode: RLM_SCHEMA_MODE_AUTOMATIC, version: 1)
+        
+        self.init(configuration: configuration)
+        
+        self.schema.cSchema = realm_get_schema(cRealm)
+    }
     
     init(configuration: Configuration) {
         self.configuration = configuration
         cRealm = realm_open(configuration.cConfig)
+        schema = Schema()
     }
     
     func write(_ transaction: () -> Void) -> Bool {

@@ -9,9 +9,16 @@ import RealmC
 
 struct Schema {
     
+    var cSchema: OpaquePointer
+    
     let classInfos: [realm_class_info]
     let classProperties: [[realm_property_info_t]]
-    var cSchema: OpaquePointer
+    
+    init() {
+        cSchema = realm_schema_new(nil, 0, nil)
+        classInfos = [realm_class_info]()
+        classProperties = [[realm_property_info_t]]()
+    }
     
     init?<T: Persistable>(classes: [T]) {
         let classInfos: [realm_class_info] = classes.map{$0.classInfo()}

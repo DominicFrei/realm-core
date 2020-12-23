@@ -13,26 +13,11 @@ class cApiTests: XCTestCase {
     
     func testCApi_Foo() {
         
-        let testClass = Foo(x: 0, y: 0, z: 0)
-        
         realm_clear_last_error()
         var success = false
         
-        guard let configuration = Configuration() else {
-            XCTFail("Configuration must not be nil.")
-            return
-        }
-        
-        guard var schema = Schema(classes: [testClass]) else {
-            XCTFail("Schema must not be nil.")
-            return
-        }
-        configuration.apply(schema: schema, mode: RLM_SCHEMA_MODE_AUTOMATIC, version: 1)
-        
-        let realm = Realm(configuration: configuration)
-        
-        schema.cSchema = realm_get_schema(realm.cRealm)
-        
+        let testClass = Foo(x: 0, y: 0, z: 0)
+        let realm = Realm(classes: [testClass])!
         let classInfo = realm.classInfo(for: testClass)
         
         
@@ -173,26 +158,11 @@ class cApiTests: XCTestCase {
     
     func testCApi_Baz() {
         
-        let testClass = Baz(x: 0, y: 0, z: "0")
-        
         realm_clear_last_error()
         var success = false
         
-        guard let configuration = Configuration() else {
-            XCTFail("Configuration must not be nil.")
-            return
-        }
-        
-        guard var schema = Schema(classes: [testClass]) else {
-            XCTFail("Schema must not be nil.")
-            return
-        }
-        configuration.apply(schema: schema, mode: RLM_SCHEMA_MODE_AUTOMATIC, version: 1)
-        
-        let realm = Realm(configuration: configuration)
-        
-        schema.cSchema = realm_get_schema(realm.cRealm)
-        
+        let testClass = Baz(x: 0, y: 0, z: "0")
+        let realm = Realm(classes: [testClass])!
         let classInfo = realm.classInfo(for: testClass)
         
         
