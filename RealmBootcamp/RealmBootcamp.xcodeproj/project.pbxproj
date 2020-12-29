@@ -16,6 +16,9 @@
 		7D8F7ACF25936F5D007B38C5 /* Faz.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D8F7ACE25936F5D007B38C5 /* Faz.swift */; };
 		7D8F7B712593AE84007B38C5 /* RealmTestsBaseClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D8F7B702593AE84007B38C5 /* RealmTestsBaseClass.swift */; };
 		7D8F7B9F259B43C4007B38C5 /* Errors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D8F7B9E259B43C4007B38C5 /* Errors.swift */; };
+		7D8F7C19259B7197007B38C5 /* PropertyWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D8F7C18259B7197007B38C5 /* PropertyWrapper.swift */; };
+		7D8F7C43259B7229007B38C5 /* PropertyWrapperTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D8F7C42259B7229007B38C5 /* PropertyWrapperTests.swift */; };
+		7D8F7C49259B727B007B38C5 /* JasonsTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D8F7C48259B727B007B38C5 /* JasonsTest.swift */; };
 		7D938009259224A900F651A5 /* Property.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D938008259224A900F651A5 /* Property.swift */; };
 		7D93801C2592435F00F651A5 /* Configuration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D93801B2592435F00F651A5 /* Configuration.swift */; };
 		7D9380222592450900F651A5 /* String+RealmString.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D9380212592450900F651A5 /* String+RealmString.swift */; };
@@ -279,6 +282,9 @@
 		7D8F7ACE25936F5D007B38C5 /* Faz.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Faz.swift; sourceTree = "<group>"; };
 		7D8F7B702593AE84007B38C5 /* RealmTestsBaseClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RealmTestsBaseClass.swift; sourceTree = "<group>"; };
 		7D8F7B9E259B43C4007B38C5 /* Errors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Errors.swift; sourceTree = "<group>"; };
+		7D8F7C18259B7197007B38C5 /* PropertyWrapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PropertyWrapper.swift; sourceTree = "<group>"; };
+		7D8F7C42259B7229007B38C5 /* PropertyWrapperTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PropertyWrapperTests.swift; sourceTree = "<group>"; };
+		7D8F7C48259B727B007B38C5 /* JasonsTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JasonsTest.swift; sourceTree = "<group>"; };
 		7D938008259224A900F651A5 /* Property.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Property.swift; sourceTree = "<group>"; };
 		7D93801B2592435F00F651A5 /* Configuration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Configuration.swift; sourceTree = "<group>"; };
 		7D9380212592450900F651A5 /* String+RealmString.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+RealmString.swift"; sourceTree = "<group>"; };
@@ -422,6 +428,7 @@
 				7D93803F2592576900F651A5 /* Realm.swift */,
 				7D8F7B9E259B43C4007B38C5 /* Errors.swift */,
 				7D9380212592450900F651A5 /* String+RealmString.swift */,
+				7D8F7C18259B7197007B38C5 /* PropertyWrapper.swift */,
 			);
 			path = RealmBootcamp;
 			sourceTree = "<group>";
@@ -431,6 +438,8 @@
 			children = (
 				7D8F7B702593AE84007B38C5 /* RealmTestsBaseClass.swift */,
 				7D8A314D2590B3BD00585A2E /* RealmSDKTests.swift */,
+				7D8F7C48259B727B007B38C5 /* JasonsTest.swift */,
+				7D8F7C42259B7229007B38C5 /* PropertyWrapperTests.swift */,
 				7D93802725924C0000F651A5 /* Foo.swift */,
 				7D93802D25924EC800F651A5 /* Bar.swift */,
 				7D938033259252A600F651A5 /* Baz.swift */,
@@ -872,6 +881,7 @@
 				7D9A714E259212E100164FE4 /* Persistable.swift in Sources */,
 				7D93803A2592535A00F651A5 /* Schema.swift in Sources */,
 				7D9380402592576900F651A5 /* Realm.swift in Sources */,
+				7D8F7C19259B7197007B38C5 /* PropertyWrapper.swift in Sources */,
 				7D8F7B9F259B43C4007B38C5 /* Errors.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -881,10 +891,12 @@
 			buildActionMask = 2147483647;
 			files = (
 				7D93802E25924EC800F651A5 /* Bar.swift in Sources */,
+				7D8F7C49259B727B007B38C5 /* JasonsTest.swift in Sources */,
 				7D8F7B712593AE84007B38C5 /* RealmTestsBaseClass.swift in Sources */,
 				7D938034259252A600F651A5 /* Baz.swift in Sources */,
 				7D93802825924C0000F651A5 /* Foo.swift in Sources */,
 				7D8A314E2590B3BD00585A2E /* RealmSDKTests.swift in Sources */,
+				7D8F7C43259B7229007B38C5 /* PropertyWrapperTests.swift in Sources */,
 				7D8F7ACF25936F5D007B38C5 /* Faz.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

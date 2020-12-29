@@ -31,46 +31,50 @@ struct Realm {
         self.schema.cSchema = realm_get_schema(cRealm)
     }
     
+    init?() {
+        guard let configuration = Configuration() else {
+            return nil
+        }
+        self.init(configuration: configuration)
+    }
+    
     init(configuration: Configuration) {
         self.configuration = configuration
         cRealm = realm_open(configuration.cConfig)
         schema = Schema()
     }
     
-    func write(_ transaction: () -> Void) -> Bool {
-        let beginWriteSuccess = realm_begin_write(cRealm)
-        transaction()
-        let commitSuccess = realm_commit(cRealm)
-        return beginWriteSuccess && commitSuccess
+    func write(_ transaction: () throws -> Void) throws {
+        guard realm_begin_write(cRealm) else {
+            throw RealmError.BeginWriteFailed
+        }
+        try transaction()
+        guard realm_commit(cRealm) else {
+            throw RealmError.CommitFailed
+        }
     }
     
-    func classInfo<T: Persistable>(for type: T) -> realm_class_info_t {
+    func classInfo<T: Persistable>(for type: T) throws -> realm_class_info_t {
         var found = false
         var classInfo = realm_class_info_t()
-        let success = realm_find_class(cRealm, type.classInfo().name, &found, &classInfo)
-        assert(success)
-        assert(found)
+        guard realm_find_class(cRealm, type.classInfo().name, &found, &classInfo) else {
+            throw RealmError.ClassNotFound
+        }
         return classInfo
     }
     
-    func add<T: Persistable>(_ object: T) {
-        
-        let info = classInfo(for: object)
-        
+    func add<T: Persistable>(_ object: T) throws {
+        let info = try classInfo(for: object)
         var primaryKeyValue = realm_value_t()
         primaryKeyValue.integer = 42
         primaryKeyValue.type = RLM_TYPE_INT
-        var object: OpaquePointer?
-        var success = write {
-            object = realm_object_create_with_primary_key(cRealm, info.key, primaryKeyValue)
+        let object = realm_object_create_with_primary_key(cRealm, info.key, primaryKeyValue)
+        guard object != nil else {
+            throw RealmError.ClassNotFound
         }
-        assert(success)
-        assert(realm_object_is_valid(object))
-        
-        var amount = size_t()
-        success = realm_get_num_objects(cRealm, info.key, &amount)
-        assert(success)
-        assert(amount == 1)
+        guard realm_object_is_valid(object) else {
+            throw RealmError.InvalidObject
+        }
     }
     
     struct EncodableWrapper: Encodable {
@@ -86,7 +90,7 @@ struct Realm {
         let classInfo = retrieveClassInfo(for: testClass)
         let propertyKeys = retrievePropertyKeys(with: classInfo)
         let object = try findObject(with: classInfo, primaryKey: primaryKey)
-        let values: [String: Encodable] = getValues(for: object, propertyKeys: propertyKeys, classInfo: classInfo)
+        let values: [String: Encodable] = try getValues(for: object, propertyKeys: propertyKeys, classInfo: classInfo)
         
         let wrappedDict = values.mapValues(EncodableWrapper.init(wrapped:))
         let jsonEncoder = JSONEncoder()
@@ -120,7 +124,6 @@ struct Realm {
         let success = realm_find_class(cRealm, name, &outFound, classInfo)
         assert(success)
         assert(String(cString: classInfo.pointee.name.data) == className)
-        assert(String(cString: classInfo.pointee.primary_key.data) == "x")
         assert(classInfo.pointee.num_properties == testClass.properties().count)
         return classInfo
     }
@@ -147,17 +150,16 @@ struct Realm {
         let propertyKeys = UnsafeMutablePointer<realm_col_key_t>.allocate(capacity: classInfo.pointee.num_properties)
         let outNumber = UnsafeMutablePointer<size_t>.allocate(capacity: 1)
         let success = realm_get_property_keys(cRealm, tableKey, propertyKeys, classInfo.pointee.num_properties, outNumber)
-//        let propertyInfo = UnsafeMutablePointer<realm_property_info_t>.allocate(capacity: 1)
-//        realm_get_property(cRealm, tableKey, propertyKeys)
         assert(success)
         assert(outNumber.pointee == classInfo.pointee.num_properties)
         return propertyKeys
     }
     
-    func getValues(for object: OpaquePointer, propertyKeys: UnsafeMutablePointer<realm_col_key_t>, classInfo: UnsafeMutablePointer<realm_class_info_t>) -> [String: Encodable] {
+    func getValues(for object: OpaquePointer, propertyKeys: UnsafeMutablePointer<realm_col_key_t>, classInfo: UnsafeMutablePointer<realm_class_info_t>) throws -> [String: Encodable] {
         let outValues = UnsafeMutablePointer<realm_value_t>.allocate(capacity: classInfo.pointee.num_properties)
-        let success = realm_get_values(object, classInfo.pointee.num_properties, propertyKeys, outValues)
-        assert(success)
+        guard realm_get_values(object, classInfo.pointee.num_properties, propertyKeys, outValues) else {
+            throw RealmError.FetchValuesFailed
+        }
         
         var values = [String: Encodable]()
         for i in 0..<classInfo.pointee.num_properties {
@@ -177,7 +179,7 @@ struct Realm {
         return values
     }
     
-    func updateValues(for object: OpaquePointer, propertyKeys: UnsafeMutablePointer<realm_col_key_t>, newValues: [Any]) {
+    func updateValues(for object: OpaquePointer, propertyKeys: UnsafeMutablePointer<realm_col_key_t>, newValues: [Any]) throws -> Bool {
         var realmValues = [realm_value_t]()
         for i in 0..<newValues.count {
             var value = realm_value_t()
@@ -201,25 +203,11 @@ struct Realm {
             (valuesAsPointer + i).pointee = realmValues[i]
         }
         
-        let success = write {
-            let success = realm_set_values(object, realmValues.count, propertyKeys, valuesAsPointer, false)
-            assert(success)
-        }
-        assert(success)
+        return realm_set_values(object, realmValues.count, propertyKeys, valuesAsPointer, false)
     }
     
-    func delete<T: Persistable>(_ object: OpaquePointer, of testClass: T) {
-        var success = write {
-            let success = realm_object_delete(object)
-            assert(success)
-        }
-        assert(success)
-        
-        let classInfo = self.classInfo(for: testClass)
-        var amount = size_t()
-        success = realm_get_num_objects(cRealm, classInfo.key, &amount)
-        assert(success)
-        assert(amount == 0)
+    func delete<T: Persistable>(_ object: OpaquePointer, of testClass: T) -> Bool {
+        return realm_object_delete(object)
     }
     
 }

@@ -9,15 +9,23 @@ import XCTest
 @testable import RealmBootcamp
 import RealmC
 
+// swiftlint:disable type_body_length
 class RealmSDKTests: RealmTestsBaseClass {
     
     // swiftlint:disable function_body_length
+    // swiftlint:disable cyclomatic_complexity
     func testFoo() {
         let foo = Foo(x: 42, y: 0, z: 0)
         let realm = Realm(classes: [foo.self])!
         
         // Create:
-        realm.add(foo)
+        do {
+            try realm.write {
+                try realm.add(foo)
+            }
+        } catch let error {
+            XCTFail(error.localizedDescription)
+        }
         
         // Read:
         var (retrievedObject, outColumnKeys, object): (OpaquePointer?, UnsafeMutablePointer<realm_col_key_t>?, Foo?)
@@ -46,11 +54,14 @@ class RealmSDKTests: RealmTestsBaseClass {
         XCTAssertEqual(unwrappedObject.y, 0)
         XCTAssertEqual(unwrappedObject.z, 0)
         
-        // Update:
-        realm.updateValues(for: unwrappedRetrievedObject, propertyKeys: unwrappedOutColumnKeys, newValues: [42, 24, 25])
-        
-        // Read again:
         do {
+            // Update:
+            try realm.write {
+                let success = try realm.updateValues(for: unwrappedRetrievedObject, propertyKeys: unwrappedOutColumnKeys, newValues: [42, 24, 25])
+                XCTAssert(success)
+            }
+            
+            // Read again:
             (retrievedObject, outColumnKeys, object) = try realm.find(testClass: foo, withPrimaryKey: 42)
         } catch let error as RealmError {
             XCTFail(error.localizedDescription)
@@ -76,8 +87,16 @@ class RealmSDKTests: RealmTestsBaseClass {
         XCTAssertEqual(unwrappedObjectAfterUpdate.z, 25)
         
         // Delete:
-        realm.delete(unwrappedRetrievedObjectAfterUpdate, of: foo)
-        
+        do {
+            try realm.write({
+                let success = realm.delete(unwrappedRetrievedObjectAfterUpdate, of: foo)
+                XCTAssert(success)
+            })
+        } catch let error as RealmError {
+            XCTFail(error.localizedDescription)
+        } catch let error {
+            XCTFail("Unexpected error: \(error.localizedDescription)")
+        }
     }
     
     func testBar() {
@@ -85,7 +104,13 @@ class RealmSDKTests: RealmTestsBaseClass {
         let realm = Realm(classes: [bar.self])!
         
         // Create:
-        realm.add(bar)
+        do {
+            try realm.write {
+                try realm.add(bar)
+            }
+        } catch let error {
+            XCTFail(error.localizedDescription)
+        }
         
         // Read:
         var (retrievedObject, outColumnKeys, object): (OpaquePointer?, UnsafeMutablePointer<realm_col_key_t>?, Bar?)
@@ -114,11 +139,14 @@ class RealmSDKTests: RealmTestsBaseClass {
         XCTAssertEqual(unwrappedObject.y, 0)
         XCTAssertEqual(unwrappedObject.z, 0)
         
-        // Update:
-        realm.updateValues(for: unwrappedRetrievedObject, propertyKeys: unwrappedOutColumnKeys, newValues: [42, 24, 25])
-        
-        // Read again:
         do {
+            // Update:
+            try realm.write {
+                let success = try realm.updateValues(for: unwrappedRetrievedObject, propertyKeys: unwrappedOutColumnKeys, newValues: [42, 24, 25])
+                XCTAssert(success)
+            }
+            
+            // Read again:
             (retrievedObject, outColumnKeys, object) = try realm.find(testClass: bar, withPrimaryKey: 42)
         } catch let error as RealmError {
             XCTFail(error.localizedDescription)
@@ -144,7 +172,16 @@ class RealmSDKTests: RealmTestsBaseClass {
         XCTAssertEqual(unwrappedObjectAfterUpdate.z, 25)
         
         // Delete:
-        realm.delete(unwrappedRetrievedObjectAfterUpdate, of: bar)
+        do {
+            try realm.write({
+                let success = realm.delete(unwrappedRetrievedObjectAfterUpdate, of: bar)
+                XCTAssert(success)
+            })
+        } catch let error as RealmError {
+            XCTFail(error.localizedDescription)
+        } catch let error {
+            XCTFail("Unexpected error: \(error.localizedDescription)")
+        }
     }
     
     func testBaz() {
@@ -152,7 +189,13 @@ class RealmSDKTests: RealmTestsBaseClass {
         let realm = Realm(classes: [baz.self])!
         
         // Create:
-        realm.add(baz)
+        do {
+            try realm.write {
+                try realm.add(baz)
+            }
+        } catch let error {
+            XCTFail(error.localizedDescription)
+        }
         
         // Read:
         var (retrievedObject, outColumnKeys, object): (OpaquePointer?, UnsafeMutablePointer<realm_col_key_t>?, Baz?)
@@ -181,11 +224,14 @@ class RealmSDKTests: RealmTestsBaseClass {
         XCTAssertEqual(unwrappedObject.y, 0)
         XCTAssertEqual(unwrappedObject.z, "")
         
-        // Update:
-        realm.updateValues(for: unwrappedRetrievedObject, propertyKeys: unwrappedOutColumnKeys, newValues: [42, 24, "25"])
-        
-        // Read again:
         do {
+            // Update:
+            try realm.write {
+                let success = try realm.updateValues(for: unwrappedRetrievedObject, propertyKeys: unwrappedOutColumnKeys, newValues: [42, 24, "25"])
+                XCTAssert(success)
+            }
+            
+            // Read again:
             (retrievedObject, outColumnKeys, object) = try realm.find(testClass: baz, withPrimaryKey: 42)
         } catch let error as RealmError {
             XCTFail(error.localizedDescription)
@@ -211,7 +257,16 @@ class RealmSDKTests: RealmTestsBaseClass {
         XCTAssertEqual(unwrappedObjectAfterUpdate.z, "25")
         
         // Delete:
-        realm.delete(unwrappedRetrievedObjectAfterUpdate, of: baz)
+        do {
+            try realm.write({
+                let success = realm.delete(unwrappedRetrievedObjectAfterUpdate, of: baz)
+                XCTAssert(success)
+            })
+        } catch let error as RealmError {
+            XCTFail(error.localizedDescription)
+        } catch let error {
+            XCTFail("Unexpected error: \(error.localizedDescription)")
+        }
     }
     
     func testFaz() {
@@ -219,7 +274,13 @@ class RealmSDKTests: RealmTestsBaseClass {
         let realm = Realm(classes: [faz.self])!
         
         // Create:
-        realm.add(faz)
+        do {
+            try realm.write {
+                try realm.add(faz)
+            }
+        } catch let error {
+            XCTFail(error.localizedDescription)
+        }
         
         // Read:
         var (retrievedObject, outColumnKeys, object): (OpaquePointer?, UnsafeMutablePointer<realm_col_key_t>?, Faz?)
@@ -248,11 +309,14 @@ class RealmSDKTests: RealmTestsBaseClass {
         XCTAssertEqual(unwrappedObject.y, 0)
         XCTAssertEqual(unwrappedObject.z, 0)
         
-        // Update:
-        realm.updateValues(for: unwrappedRetrievedObject, propertyKeys: unwrappedOutColumnKeys, newValues: [42, 24, 25, "a", "b"])
-        
-        // Read again:
         do {
+            // Update:
+            try realm.write {
+                let success = try realm.updateValues(for: unwrappedRetrievedObject, propertyKeys: unwrappedOutColumnKeys, newValues: [42, 24, 25, "a", "b"])
+                XCTAssert(success)
+            }
+            
+            // Read again:
             (retrievedObject, outColumnKeys, object) = try realm.find(testClass: faz, withPrimaryKey: 42)
         } catch let error as RealmError {
             XCTFail(error.localizedDescription)
@@ -280,31 +344,16 @@ class RealmSDKTests: RealmTestsBaseClass {
         XCTAssertEqual(unwrappedObjectAfterUpdate.b, "b")
         
         // Delete:
-        realm.delete(unwrappedRetrievedObjectAfterUpdate, of: faz)
+        do {
+            try realm.write({
+                let success = realm.delete(unwrappedRetrievedObjectAfterUpdate, of: faz)
+                XCTAssert(success)
+            })
+        } catch let error as RealmError {
+            XCTFail(error.localizedDescription)
+        } catch let error {
+            XCTFail("Unexpected error: \(error.localizedDescription)")
+        }
     }
-    
-    //     Due Date: 11 / 01 / 2021
-    //        func testJason() {
-    //            let faz = Faz(x: 42, y: 0, z: 0, a: "a", b: "b")
-    //            var realm = Realm()
-    //            XCTAssertThrows(realm.add(faz))
-    //            realm.write {
-    //                realm.add(faz)
-    //                faz.a = "foo"
-    //                faz.y = 84
-    //            }
-    //            XCTAssertTrue(faz.isValid)
-    //            let foundObj = realm.object<MyObject>(primaryKey: 84)
-    //            XCTAssertEqual(foundObj, faz)
-    //            XCTAssertTrue(foundObj.isValid)
-    //            XCTAssertEqual(foundObj.str, "foo")
-    //            XCTAssertEqual(foundObj.int, 84)
-    //            XCTAssertThrows(() { foundObj.y = 42})
-    //            XCTAssertThrows(realm.delete(foundObj))
-    //            realm.write {
-    //                realm.delete(foundObj)
-    //            }
-    //            XCAssertFalse(foundObj.isValid)
-    //        }
     
 }

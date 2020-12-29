@@ -6,6 +6,10 @@
 //
 
 enum RealmError: Error {
+    case ClassNotFound
     case ObjectNotFound
     case InvalidObject
+    case FetchValuesFailed
+    case BeginWriteFailed
+    case CommitFailed
 }
