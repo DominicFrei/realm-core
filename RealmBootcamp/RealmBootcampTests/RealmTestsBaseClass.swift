@@ -15,12 +15,16 @@ class RealmTestsBaseClass: XCTestCase {
         realm_clear_last_error()
     }
     
-    override class func tearDown() {
+    override func tearDown() {
+        printLastError()
+    }
+    
+    func printLastError() {
         var error = realm_error_t()
         let errorFound = realm_get_last_error(&error)
         XCTAssertFalse(errorFound)
         if let data = error.message.data {
-            XCTFail("\(String(cString: data))")
+            XCTFail("=== REALM LAST ERROR === \(String(cString: data))")
         }
     }
 

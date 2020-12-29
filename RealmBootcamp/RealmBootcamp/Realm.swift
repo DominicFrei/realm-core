@@ -45,13 +45,11 @@ struct Realm {
     }
     
     func classInfo<T: Persistable>(for type: T) -> realm_class_info_t {
-        var amount = size_t()
         var found = false
         var classInfo = realm_class_info_t()
-        var success = realm_find_class(cRealm, type.classInfo().name, &found, &classInfo)
+        let success = realm_find_class(cRealm, type.classInfo().name, &found, &classInfo)
         assert(success)
-        success = realm_get_num_objects(cRealm, classInfo.key, &amount)
-        assert(success)
+        assert(found)
         return classInfo
     }
     
@@ -77,21 +75,18 @@ struct Realm {
     
     struct EncodableWrapper: Encodable {
         let wrapped: Encodable
-
         func encode(to encoder: Encoder) throws {
             try self.wrapped.encode(to: encoder)
         }
     }
     
     // TODO: Add a find without a primary key.
-    func find<T: Persistable>(testClass: T, withPrimaryKey primaryKey: Int64) -> (OpaquePointer?, UnsafeMutablePointer<realm_col_key_t>, T) {
+    func find<T: Persistable>(testClass: T, withPrimaryKey primaryKey: Int64) throws -> (OpaquePointer?, UnsafeMutablePointer<realm_col_key_t>, T) {
         
         let classInfo = retrieveClassInfo(for: testClass)
-        let propertyKeys = retrieveProertyKeys(with: classInfo)
-        let object = findObject(with: classInfo, primaryKey: primaryKey)
-        assert(object != nil)
-        
-        let values: [String: Encodable] = getValues(for: object!, propertyKeys: propertyKeys, classInfo: classInfo)
+        let propertyKeys = retrievePropertyKeys(with: classInfo)
+        let object = try findObject(with: classInfo, primaryKey: primaryKey)
+        let values: [String: Encodable] = getValues(for: object, propertyKeys: propertyKeys, classInfo: classInfo)
         
         let wrappedDict = values.mapValues(EncodableWrapper.init(wrapped:))
         let jsonEncoder = JSONEncoder()
@@ -99,14 +94,10 @@ struct Realm {
         
         var model: T!
         
-        do {
-            let jsonData = try jsonEncoder.encode(wrappedDict)
-            let json = String(decoding: jsonData, as: UTF8.self)
-            let data = json.data(using: .utf8)
-            model = decodeData(data!)
-        } catch {
-            
-        }
+        let jsonData = try jsonEncoder.encode(wrappedDict)
+        let json = String(decoding: jsonData, as: UTF8.self)
+        let data = json.data(using: .utf8)
+        model = decodeData(data!)
         
         return (object, propertyKeys, model!)
     }
@@ -134,21 +125,30 @@ struct Realm {
         return classInfo
     }
     
-    func findObject(with classInfo: UnsafeMutablePointer<realm_class_info_t>, primaryKey: Int64) -> OpaquePointer? {
+    func findObject(with classInfo: UnsafeMutablePointer<realm_class_info_t>, primaryKey: Int64) throws -> OpaquePointer {
         var pkValue = realm_value_t()
         pkValue.integer = primaryKey
         pkValue.type = RLM_TYPE_INT // TODO: Allow all types.
-        var found = false
-        let retrievedObject = realm_object_find_with_primary_key(cRealm, classInfo.pointee.key, pkValue, &found)
-        assert(realm_object_is_valid(retrievedObject))
+        let found = UnsafeMutablePointer<Bool>.allocate(capacity: 1)
+        guard let retrievedObject = realm_object_find_with_primary_key(cRealm, classInfo.pointee.key, pkValue, found) else {
+            throw RealmError.ObjectNotFound
+        }
+        guard found.pointee == true else {
+            throw RealmError.ObjectNotFound
+        }
+        guard realm_object_is_valid(retrievedObject) else {
+            throw RealmError.InvalidObject
+        }
         return retrievedObject
     }
     
-    func retrieveProertyKeys(with classInfo: UnsafeMutablePointer<realm_class_info_t>) -> UnsafeMutablePointer<realm_col_key_t> {
+    func retrievePropertyKeys(with classInfo: UnsafeMutablePointer<realm_class_info_t>) -> UnsafeMutablePointer<realm_col_key_t> {
         let tableKey = classInfo.pointee.key
         let propertyKeys = UnsafeMutablePointer<realm_col_key_t>.allocate(capacity: classInfo.pointee.num_properties)
         let outNumber = UnsafeMutablePointer<size_t>.allocate(capacity: 1)
         let success = realm_get_property_keys(cRealm, tableKey, propertyKeys, classInfo.pointee.num_properties, outNumber)
+//        let propertyInfo = UnsafeMutablePointer<realm_property_info_t>.allocate(capacity: 1)
+//        realm_get_property(cRealm, tableKey, propertyKeys)
         assert(success)
         assert(outNumber.pointee == classInfo.pointee.num_properties)
         return propertyKeys
@@ -178,36 +178,34 @@ struct Realm {
     }
     
     func updateValues(for object: OpaquePointer, propertyKeys: UnsafeMutablePointer<realm_col_key_t>, newValues: [Any]) {
+        var realmValues = [realm_value_t]()
+        for i in 0..<newValues.count {
+            var value = realm_value_t()
+            switch newValues[i] {
+            case let newValue as Int:
+                value.type = RLM_TYPE_INT
+                value.integer = Int64(newValue)
+            case let newValue as String:
+                value.type = RLM_TYPE_STRING
+                value.string = newValue.realmString()
+            default:
+                break
+            }
+            realmValues.append(value)
+        }
         
+        assert(newValues.count == realmValues.count)
         
+        let valuesAsPointer = UnsafeMutablePointer<realm_value_t>.allocate(capacity: realmValues.count)
+        for i in 0..<realmValues.count {
+            (valuesAsPointer + i).pointee = realmValues[i]
+        }
         
-        var newFirstValue = realm_value_t()
-        newFirstValue.integer = 23
-        newFirstValue.type = RLM_TYPE_INT
-        var newSecondValue = realm_value_t()
-        newSecondValue.integer = 24
-        newSecondValue.type = RLM_TYPE_INT
-        let values = UnsafeMutablePointer<realm_value_t>.allocate(capacity: 2)
-        values.pointee = newFirstValue
-        (values + 1).pointee = newSecondValue
-        var success = write {
-            let success = realm_set_values(object, 2, propertyKeys, values, false)
+        let success = write {
+            let success = realm_set_values(object, realmValues.count, propertyKeys, valuesAsPointer, false)
             assert(success)
         }
         assert(success)
-        
-        // Check the new value.
-        let outValuesAfterUpdate = UnsafeMutablePointer<realm_value_t>.allocate(capacity: 3)
-        success = realm_get_values(object, 2, propertyKeys, outValuesAfterUpdate)
-        assert(success)
-        
-        let firstPropertyAfterUpdate = outValuesAfterUpdate.pointee
-        assert(firstPropertyAfterUpdate.type == RLM_TYPE_INT)
-        assert(firstPropertyAfterUpdate.integer == 23)
-        
-        let secondPropertyAfterUpdate = outValuesAfterUpdate.advanced(by: 1).pointee
-        assert(secondPropertyAfterUpdate.type == RLM_TYPE_INT)
-        assert(secondPropertyAfterUpdate.integer == 24)
     }
     
     func delete<T: Persistable>(_ object: OpaquePointer, of testClass: T) {
