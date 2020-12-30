@@ -5,37 +5,27 @@
 //  Created by Dominic Frei on 22/12/2020.
 //
 
-import RealmC
-
 struct Configuration {
     
-    let cConfig: OpaquePointer
+    let cConfiguration: OpaquePointer
     
-    let path: String
-    
-    init(path: String? = nil) throws {
-        if let path = path {
-            self.path = path
-        } else {
-            let uuid = UUID().uuidString
-            self.path = "\(uuid).realm"
-        }
-        print(self.path)
-        cConfig = realm_config_new()
-        let realmPath = self.path.realmString()
-        guard realm_config_set_path(cConfig, realmPath) else {
-            throw RealmError.InvalidPath
-        }
+    init() throws {
+        let uuid = UUID().uuidString
+        let path = "\(uuid).realm"
+        print(path)
+        cConfiguration = CLayerAbstraction.createConfiguration()
+        try CLayerAbstraction.setPath(path, to: cConfiguration)
     }
     
-    func apply(schema: Schema, mode: realm_schema_mode_e, version: UInt64) {
-        var success: Bool
-        success = realm_config_set_schema(cConfig, schema.cSchema)
-        assert(success)
-        success = realm_config_set_schema_mode(cConfig, mode)
-        assert(success)
-        success = realm_config_set_schema_version(cConfig, version)
-        assert(success)
-    }
+    // TODO: Works without?
+//    func apply(schema: Schema, mode: realm_schema_mode_e, version: UInt64) {
+//        var success: Bool
+//        success = realm_config_set_schema(cConfiguration, schema.cSchema)
+//        assert(success)
+//        success = realm_config_set_schema_mode(cConfiguration, mode)
+//        assert(success)
+//        success = realm_config_set_schema_version(cConfiguration, version)
+//        assert(success)
+//    }
     
 }

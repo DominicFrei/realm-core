@@ -828,6 +828,8 @@ RLM_API bool realm_compact(realm_t*, bool* did_compact);
 RLM_API realm_schema_t* realm_schema_new(const realm_class_info_t* classes, size_t num_classes,
                                          const realm_property_info_t** class_properties);
 
+RLM_API bool realm_set_schema(realm_t* realm, const realm_schema_t* schema);
+
 /**
  * Get the schema for this realm.
  *
