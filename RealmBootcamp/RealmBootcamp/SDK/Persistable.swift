@@ -8,23 +8,26 @@
 import RealmC
 
 protocol Persistable: Codable {
-    // TODO: Extend primary keys to be of any type (not just Int).
-    // TODO: Primary key should be optional.
     var primaryKey: String { get }
+    func isValid() -> Bool
 }
 
 extension Persistable {
     
     func properties() -> [Property] {
         let mirror = Mirror(reflecting: self)
-        return mirror.children.map { Property(label: $0.label!, value: $0.value) }
+        let properties = mirror.children.map { Property(label: $0.label!, value: $0.value) }
+        return properties
+    }
+    
+    func typeName() -> String {
+        return String(describing: Self.self)
     }
     
     func classInfo() -> realm_class_info {
-        let typeName = String(describing: Self.self).realmString()
         let primaryKey = self.primaryKey.realmString()
         var classInfo = realm_class_info()
-        classInfo.name = typeName
+        classInfo.name = typeName().realmString()
         classInfo.primary_key = primaryKey
         classInfo.num_properties = properties().count
         return classInfo
@@ -38,7 +41,6 @@ extension Persistable {
             propertyInfo.name = propertyName.realmString()
             propertyInfo.public_name = "".realmString()
             
-            // TODO: Add more types.
             switch property.value {
             case is Int:
                 propertyInfo.type = RLM_PROPERTY_TYPE_INT
@@ -56,6 +58,10 @@ extension Persistable {
             classProperties.append(propertyInfo)
         }
         return classProperties
+    }
+    
+    func isValid() -> Bool {
+        return false
     }
     
 }

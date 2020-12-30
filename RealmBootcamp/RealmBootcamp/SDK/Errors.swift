@@ -12,4 +12,7 @@ enum RealmError: Error {
     case FetchValuesFailed
     case BeginWriteFailed
     case CommitFailed
+    case PrimaryKeyViolation
+    case SchemaChange
+    case InvalidPath
 }

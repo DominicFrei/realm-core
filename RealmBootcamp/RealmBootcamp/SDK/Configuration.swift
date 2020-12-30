@@ -13,17 +13,18 @@ struct Configuration {
     
     let path: String
     
-    init?(path: String? = nil) {
+    init(path: String? = nil) throws {
         if let path = path {
             self.path = path
         } else {
             let uuid = UUID().uuidString
             self.path = "\(uuid).realm"
         }
+        print(self.path)
         cConfig = realm_config_new()
         let realmPath = self.path.realmString()
         guard realm_config_set_path(cConfig, realmPath) else {
-            return nil
+            throw RealmError.InvalidPath
         }
     }
     

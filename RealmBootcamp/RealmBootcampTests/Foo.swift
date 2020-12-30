@@ -7,7 +7,7 @@
 
 @testable import RealmBootcamp
 
-struct Foo: Persistable {
+struct Foo: Persistable {    
     let x: Int
     let y: Int
     let z: Int

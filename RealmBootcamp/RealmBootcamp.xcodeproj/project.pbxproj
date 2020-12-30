@@ -392,6 +392,21 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
+		7D634E65259B9B37005D3305 /* SDK */ = {
+			isa = PBXGroup;
+			children = (
+				7D93803F2592576900F651A5 /* Realm.swift */,
+				7D93801B2592435F00F651A5 /* Configuration.swift */,
+				7D9380392592535A00F651A5 /* Schema.swift */,
+				7D9A714D259212E100164FE4 /* Persistable.swift */,
+				7D938008259224A900F651A5 /* Property.swift */,
+				7D8F7B9E259B43C4007B38C5 /* Errors.swift */,
+				7D9380212592450900F651A5 /* String+RealmString.swift */,
+				7D8F7C18259B7197007B38C5 /* PropertyWrapper.swift */,
+			);
+			path = SDK;
+			sourceTree = "<group>";
+		};
 		7D8A31352590B3BD00585A2E = {
 			isa = PBXGroup;
 			children = (
@@ -419,16 +434,9 @@
 		7D8A31412590B3BD00585A2E /* RealmBootcamp */ = {
 			isa = PBXGroup;
 			children = (
+				7D634E65259B9B37005D3305 /* SDK */,
 				7D8A31422590B3BD00585A2E /* RealmBootcamp.h */,
 				7D8A31432590B3BD00585A2E /* Info.plist */,
-				7D9A714D259212E100164FE4 /* Persistable.swift */,
-				7D938008259224A900F651A5 /* Property.swift */,
-				7D93801B2592435F00F651A5 /* Configuration.swift */,
-				7D9380392592535A00F651A5 /* Schema.swift */,
-				7D93803F2592576900F651A5 /* Realm.swift */,
-				7D8F7B9E259B43C4007B38C5 /* Errors.swift */,
-				7D9380212592450900F651A5 /* String+RealmString.swift */,
-				7D8F7C18259B7197007B38C5 /* PropertyWrapper.swift */,
 			);
 			path = RealmBootcamp;
 			sourceTree = "<group>";

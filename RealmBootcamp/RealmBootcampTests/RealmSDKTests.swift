@@ -9,28 +9,27 @@ import XCTest
 @testable import RealmBootcamp
 import RealmC
 
-// swiftlint:disable type_body_length
 class RealmSDKTests: RealmTestsBaseClass {
     
     // swiftlint:disable function_body_length
     // swiftlint:disable cyclomatic_complexity
     func testFoo() {
-        let foo = Foo(x: 42, y: 0, z: 0)
-        let realm = Realm(classes: [foo.self])!
-        
-        // Create:
+        let initialPrimaryKey = 42
+        let foo = Foo(x: initialPrimaryKey, y: 0, z: 0)
+        var realm: Realm!
         do {
-            try realm.write {
-                try realm.add(foo)
-            }
+            realm = try Realm()
         } catch let error {
             XCTFail(error.localizedDescription)
+            return
         }
+        
+        create(foo, in: realm)
         
         // Read:
         var (retrievedObject, outColumnKeys, object): (OpaquePointer?, UnsafeMutablePointer<realm_col_key_t>?, Foo?)
         do {
-            (retrievedObject, outColumnKeys, object) = try realm.find(testClass: foo, withPrimaryKey: 42)
+            (retrievedObject, outColumnKeys, object) = try realm.find(testClass: foo, withPrimaryKey: initialPrimaryKey)
         } catch let error as RealmError {
             XCTFail(error.localizedDescription)
         } catch let error {
@@ -50,26 +49,35 @@ class RealmSDKTests: RealmTestsBaseClass {
             return
         }
         
-        XCTAssertEqual(unwrappedObject.x, 42)
+        XCTAssertEqual(unwrappedObject.x, initialPrimaryKey)
         XCTAssertEqual(unwrappedObject.y, 0)
         XCTAssertEqual(unwrappedObject.z, 0)
         
         do {
             // Update:
             try realm.write {
-                let success = try realm.updateValues(for: unwrappedRetrievedObject, propertyKeys: unwrappedOutColumnKeys, newValues: [42, 24, 25])
+                // TODO: Use realm_get_class_properties
+                let success = try realm.updateValues(for: unwrappedRetrievedObject, propertyKeys: unwrappedOutColumnKeys, newValues: [initialPrimaryKey, 24, 25])
                 XCTAssert(success)
             }
-            
-            // Read again:
-            (retrievedObject, outColumnKeys, object) = try realm.find(testClass: foo, withPrimaryKey: 42)
         } catch let error as RealmError {
             XCTFail(error.localizedDescription)
         } catch let error {
             XCTFail("Unexpected error: \(error.localizedDescription)")
         }
         
-        guard let unwrappedRetrievedObjectAfterUpdate = retrievedObject else {
+        do {
+            // Read again:
+            // TODO: Finding the object with the new key should be possible. -> Bug somewhere that needs to be found.
+            // TODO: Changing the primary key should not be possible though and needs to be forbidden.
+            (retrievedObject, outColumnKeys, object) = try realm.find(testClass: foo, withPrimaryKey: initialPrimaryKey)
+        } catch let error as RealmError {
+            XCTFail(error.localizedDescription)
+        } catch let error {
+            XCTFail("Unexpected error: \(error.localizedDescription)")
+        }
+        
+        guard retrievedObject != nil else {
             XCTFail("retrievedObject must not be nil.")
             return
         }
@@ -82,15 +90,15 @@ class RealmSDKTests: RealmTestsBaseClass {
             return
         }
         
-        XCTAssertEqual(unwrappedObjectAfterUpdate.x, 42)
+        XCTAssertEqual(unwrappedObjectAfterUpdate.x, initialPrimaryKey)
         XCTAssertEqual(unwrappedObjectAfterUpdate.y, 24)
         XCTAssertEqual(unwrappedObjectAfterUpdate.z, 25)
         
         // Delete:
         do {
             try realm.write({
-                let success = realm.delete(unwrappedRetrievedObjectAfterUpdate, of: foo)
-                XCTAssert(success)
+                //                let success = realm.delete(unwrappedRetrievedObjectAfterUpdate, of: foo)
+                //                XCTAssert(success)
             })
         } catch let error as RealmError {
             XCTFail(error.localizedDescription)
@@ -99,260 +107,13 @@ class RealmSDKTests: RealmTestsBaseClass {
         }
     }
     
-    func testBar() {
-        let bar = Bar(x: 42, y: 0, z: 0)
-        let realm = Realm(classes: [bar.self])!
-        
-        // Create:
+    func create<T: Persistable>(_ object: T, in realm: Realm) {
         do {
             try realm.write {
-                try realm.add(bar)
+                try realm.add(object)
             }
         } catch let error {
             XCTFail(error.localizedDescription)
-        }
-        
-        // Read:
-        var (retrievedObject, outColumnKeys, object): (OpaquePointer?, UnsafeMutablePointer<realm_col_key_t>?, Bar?)
-        do {
-            (retrievedObject, outColumnKeys, object) = try realm.find(testClass: bar, withPrimaryKey: 42)
-        } catch let error as RealmError {
-            XCTFail(error.localizedDescription)
-        } catch let error {
-            XCTFail("Unexpected error: \(error.localizedDescription)")
-        }
-        
-        guard let unwrappedRetrievedObject = retrievedObject else {
-            XCTFail("retrievedObject must not be nil.")
-            return
-        }
-        guard let unwrappedOutColumnKeys = outColumnKeys else {
-            XCTFail("outColumnKeys must not be nil.")
-            return
-        }
-        guard let unwrappedObject = object else {
-            XCTFail("object must not be nil.")
-            return
-        }
-        
-        XCTAssertEqual(unwrappedObject.x, 42)
-        XCTAssertEqual(unwrappedObject.y, 0)
-        XCTAssertEqual(unwrappedObject.z, 0)
-        
-        do {
-            // Update:
-            try realm.write {
-                let success = try realm.updateValues(for: unwrappedRetrievedObject, propertyKeys: unwrappedOutColumnKeys, newValues: [42, 24, 25])
-                XCTAssert(success)
-            }
-            
-            // Read again:
-            (retrievedObject, outColumnKeys, object) = try realm.find(testClass: bar, withPrimaryKey: 42)
-        } catch let error as RealmError {
-            XCTFail(error.localizedDescription)
-        } catch let error {
-            XCTFail("Unexpected error: \(error.localizedDescription)")
-        }
-        
-        guard let unwrappedRetrievedObjectAfterUpdate = retrievedObject else {
-            XCTFail("retrievedObject must not be nil.")
-            return
-        }
-        guard outColumnKeys != nil else {
-            XCTFail("outColumnKeys must not be nil.")
-            return
-        }
-        guard let unwrappedObjectAfterUpdate = object else {
-            XCTFail("object must not be nil.")
-            return
-        }
-        
-        XCTAssertEqual(unwrappedObjectAfterUpdate.x, 42)
-        XCTAssertEqual(unwrappedObjectAfterUpdate.y, 24)
-        XCTAssertEqual(unwrappedObjectAfterUpdate.z, 25)
-        
-        // Delete:
-        do {
-            try realm.write({
-                let success = realm.delete(unwrappedRetrievedObjectAfterUpdate, of: bar)
-                XCTAssert(success)
-            })
-        } catch let error as RealmError {
-            XCTFail(error.localizedDescription)
-        } catch let error {
-            XCTFail("Unexpected error: \(error.localizedDescription)")
-        }
-    }
-    
-    func testBaz() {
-        let baz = Baz(x: 42, y: 0, z: "0")
-        let realm = Realm(classes: [baz.self])!
-        
-        // Create:
-        do {
-            try realm.write {
-                try realm.add(baz)
-            }
-        } catch let error {
-            XCTFail(error.localizedDescription)
-        }
-        
-        // Read:
-        var (retrievedObject, outColumnKeys, object): (OpaquePointer?, UnsafeMutablePointer<realm_col_key_t>?, Baz?)
-        do {
-            (retrievedObject, outColumnKeys, object) = try realm.find(testClass: baz, withPrimaryKey: 42)
-        } catch let error as RealmError {
-            XCTFail(error.localizedDescription)
-        } catch let error {
-            XCTFail("Unexpected error: \(error.localizedDescription)")
-        }
-        
-        guard let unwrappedRetrievedObject = retrievedObject else {
-            XCTFail("retrievedObject must not be nil.")
-            return
-        }
-        guard let unwrappedOutColumnKeys = outColumnKeys else {
-            XCTFail("outColumnKeys must not be nil.")
-            return
-        }
-        guard let unwrappedObject = object else {
-            XCTFail("object must not be nil.")
-            return
-        }
-        
-        XCTAssertEqual(unwrappedObject.x, 42)
-        XCTAssertEqual(unwrappedObject.y, 0)
-        XCTAssertEqual(unwrappedObject.z, "")
-        
-        do {
-            // Update:
-            try realm.write {
-                let success = try realm.updateValues(for: unwrappedRetrievedObject, propertyKeys: unwrappedOutColumnKeys, newValues: [42, 24, "25"])
-                XCTAssert(success)
-            }
-            
-            // Read again:
-            (retrievedObject, outColumnKeys, object) = try realm.find(testClass: baz, withPrimaryKey: 42)
-        } catch let error as RealmError {
-            XCTFail(error.localizedDescription)
-        } catch let error {
-            XCTFail("Unexpected error: \(error.localizedDescription)")
-        }
-        
-        guard let unwrappedRetrievedObjectAfterUpdate = retrievedObject else {
-            XCTFail("retrievedObject must not be nil.")
-            return
-        }
-        guard outColumnKeys != nil else {
-            XCTFail("outColumnKeys must not be nil.")
-            return
-        }
-        guard let unwrappedObjectAfterUpdate = object else {
-            XCTFail("object must not be nil.")
-            return
-        }
-        
-        XCTAssertEqual(unwrappedObjectAfterUpdate.x, 42)
-        XCTAssertEqual(unwrappedObjectAfterUpdate.y, 24)
-        XCTAssertEqual(unwrappedObjectAfterUpdate.z, "25")
-        
-        // Delete:
-        do {
-            try realm.write({
-                let success = realm.delete(unwrappedRetrievedObjectAfterUpdate, of: baz)
-                XCTAssert(success)
-            })
-        } catch let error as RealmError {
-            XCTFail(error.localizedDescription)
-        } catch let error {
-            XCTFail("Unexpected error: \(error.localizedDescription)")
-        }
-    }
-    
-    func testFaz() {
-        let faz = Faz(x: 42, y: 0, z: 0, a: "", b: "")
-        let realm = Realm(classes: [faz.self])!
-        
-        // Create:
-        do {
-            try realm.write {
-                try realm.add(faz)
-            }
-        } catch let error {
-            XCTFail(error.localizedDescription)
-        }
-        
-        // Read:
-        var (retrievedObject, outColumnKeys, object): (OpaquePointer?, UnsafeMutablePointer<realm_col_key_t>?, Faz?)
-        do {
-            (retrievedObject, outColumnKeys, object) = try realm.find(testClass: faz, withPrimaryKey: 42)
-        } catch let error as RealmError {
-            XCTFail(error.localizedDescription)
-        } catch let error {
-            XCTFail("Unexpected error: \(error.localizedDescription)")
-        }
-        
-        guard let unwrappedRetrievedObject = retrievedObject else {
-            XCTFail("retrievedObject must not be nil.")
-            return
-        }
-        guard let unwrappedOutColumnKeys = outColumnKeys else {
-            XCTFail("outColumnKeys must not be nil.")
-            return
-        }
-        guard let unwrappedObject = object else {
-            XCTFail("object must not be nil.")
-            return
-        }
-        
-        XCTAssertEqual(unwrappedObject.x, 42)
-        XCTAssertEqual(unwrappedObject.y, 0)
-        XCTAssertEqual(unwrappedObject.z, 0)
-        
-        do {
-            // Update:
-            try realm.write {
-                let success = try realm.updateValues(for: unwrappedRetrievedObject, propertyKeys: unwrappedOutColumnKeys, newValues: [42, 24, 25, "a", "b"])
-                XCTAssert(success)
-            }
-            
-            // Read again:
-            (retrievedObject, outColumnKeys, object) = try realm.find(testClass: faz, withPrimaryKey: 42)
-        } catch let error as RealmError {
-            XCTFail(error.localizedDescription)
-        } catch let error {
-            XCTFail("Unexpected error: \(error.localizedDescription)")
-        }
-        
-        guard let unwrappedRetrievedObjectAfterUpdate = retrievedObject else {
-            XCTFail("retrievedObject must not be nil.")
-            return
-        }
-        guard outColumnKeys != nil else {
-            XCTFail("outColumnKeys must not be nil.")
-            return
-        }
-        guard let unwrappedObjectAfterUpdate = object else {
-            XCTFail("object must not be nil.")
-            return
-        }
-        
-        XCTAssertEqual(unwrappedObjectAfterUpdate.x, 42)
-        XCTAssertEqual(unwrappedObjectAfterUpdate.y, 24)
-        XCTAssertEqual(unwrappedObjectAfterUpdate.z, 25)
-        XCTAssertEqual(unwrappedObjectAfterUpdate.a, "a")
-        XCTAssertEqual(unwrappedObjectAfterUpdate.b, "b")
-        
-        // Delete:
-        do {
-            try realm.write({
-                let success = realm.delete(unwrappedRetrievedObjectAfterUpdate, of: faz)
-                XCTAssert(success)
-            })
-        } catch let error as RealmError {
-            XCTFail(error.localizedDescription)
-        } catch let error {
-            XCTFail("Unexpected error: \(error.localizedDescription)")
         }
     }
     
