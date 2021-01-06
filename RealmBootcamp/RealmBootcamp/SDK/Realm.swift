@@ -5,6 +5,8 @@
 //  Created by Dominic Frei on 22/12/2020.
 //
 
+import RealmC
+
 class Realm {
     
     struct EncodableWrapper: Encodable {
@@ -20,7 +22,7 @@ class Realm {
     
     init() throws {
         configuration = try Configuration()
-        cRealm = CLayerAbstraction.realm(for: configuration.cConfiguration)
+        cRealm = CLayerAbstraction.openRealm(with: configuration.cConfiguration)
         schema = Schema()
     }
     
@@ -35,25 +37,57 @@ class Realm {
         try CLayerAbstraction.create(object, in: self.cRealm)
     }
     
+//    func addTypeIfNecessary<T: Persistable>(_ type: T) throws {
+//        let classInfo = CLayerAbstraction.find(type.typeName(), in: cRealm)
+//        guard classInfo == nil else {
+//            return
+//        }
+//
+//        var (classInfos, classProperties) = try getCurrentClassAndPropertyInfo()
+//
+//        // Add the new class to the existing class and property info.
+//        classInfos.append(type.classInfo())
+//        classProperties.append(try type.classProperties())
+//
+//        // Set the new schema in the current realm.
+//        schema = try Schema(classInfos: classInfos, propertyInfos: classProperties, realm: self)
+//        // TODO: Rework to not just commi and start write again but save and execute whole transaction after add.
+//        try CLayerAbstraction.endTransaction(on: cRealm)
+//        try CLayerAbstraction.setSchema(schema.cSchema, for: cRealm)
+//        try CLayerAbstraction.setSchema(schema.cSchema, in: configuration.cConfiguration)
+//        self.schema.cSchema = CLayerAbstraction.getSchema(for: cRealm)
+//        try CLayerAbstraction.startTransaction(on: cRealm)
+//    }
+    
     func addTypeIfNecessary<T: Persistable>(_ type: T) throws {
         let classInfo = CLayerAbstraction.find(type.typeName(), in: cRealm)
         guard classInfo == nil else {
             return
         }
-        
-        var (classInfos, classProperties) = try getCurrentClassAndPropertyInfo()
-        
+
+        //        var (classInfos, classProperties): ([ClassInfo], [[PropertyInfo]]) = try getCurrentClassAndPropertyInfo()
+
+        let existingClassesCount = schema.objectSchemas.count
+        let classInfos = UnsafeMutablePointer<realm_class_info_t>.allocate(capacity: existingClassesCount + 1)
+        let classProperties = UnsafeMutablePointer<UnsafePointer<realm_property_info_t>?>.allocate(capacity: existingClassesCount + 1)
+
+        for i in 0..<existingClassesCount {
+            let (classInfo, classProperty): (realm_class_info_t, UnsafeMutablePointer<realm_property_info_t>) = schema.objectSchemas[i].handle
+            classInfos.advanced(by: i).pointee = classInfo
+            classProperties.advanced(by: i).pointee = UnsafePointer(classProperty)
+        }
+
         // Add the new class to the existing class and property info.
-        classInfos.append(type.classInfo())
-        classProperties.append(try type.classProperties())
-        
+        classInfos.advanced(by: existingClassesCount).pointee = type.classInfo().toCClassInfo()
+        classProperties.advanced(by: existingClassesCount).pointee = try type.classProperties().map {$0.handle}.withUnsafeBufferPointer({$0.baseAddress})
+
         // Set the new schema in the current realm.
-        schema = try Schema(classInfos: classInfos, classProperties: classProperties)
-        // TODO: Rework to not just commi and start write again but save and execute whole transaction after add.
+        schema = try Schema(classInfos: classInfos, count: existingClassesCount + 1, classProperties: classProperties, realm: self)
+        // TODO: Rework to not just commit and start write again but save and execute whole transaction after add.
         try CLayerAbstraction.endTransaction(on: cRealm)
         try CLayerAbstraction.setSchema(schema.cSchema, for: cRealm)
         try CLayerAbstraction.setSchema(schema.cSchema, in: configuration.cConfiguration)
-        self.schema.cSchema = CLayerAbstraction.getSchema(for: cRealm)
+        schema.cSchema = CLayerAbstraction.getSchema(for: cRealm)
         try CLayerAbstraction.startTransaction(on: cRealm)
     }
     
@@ -71,8 +105,8 @@ class Realm {
         return (classInfos, classProperties)
     }
     
-    func find<T: Persistable>(objectOfType type: T, withPrimaryKey primaryKey: Int) throws -> T {
-        guard let classInfo = CLayerAbstraction.find(type.typeName(), in: cRealm) else {
+    func find<T: Persistable>(_ type: T.Type, withPrimaryKey primaryKey: Int) throws -> T {
+        guard let classInfo = CLayerAbstraction.find(String(describing: type), in: cRealm) else {
             throw RealmError.ClassNotFound
         }
         let propertyKeys = try CLayerAbstraction.retrievePropertyKeys(with: classInfo, in: cRealm)
@@ -97,14 +131,15 @@ class Realm {
         var model: T?
         do {
             model = try JSONDecoder().decode(T.self, from: data)
-        } catch {
+        } catch let error {
+            print(error.localizedDescription)
             assert(false)
         }
         return model
     }
     
-    func updateValues<T: Persistable>(objectOfType type: T, withPrimaryKey primaryKey: Int, newValues: [Any]) throws {
-        guard let classInfo = CLayerAbstraction.find(type.typeName(), in: cRealm) else {
+    func updateValues<T: Persistable>(objectOfType type: T.Type, withPrimaryKey primaryKey: Int, newValues: [Any]) throws {
+        guard let classInfo = CLayerAbstraction.find(String(describing: type), in: cRealm) else {
             throw RealmError.ClassNotFound
         }
         let propertyKeys = try CLayerAbstraction.retrievePropertyKeys(with: classInfo, in: cRealm)
@@ -112,11 +147,12 @@ class Realm {
         return try CLayerAbstraction.updateValues(for: object, propertyKeys: propertyKeys, newValues: newValues)
     }
     
-    func delete<T: Persistable>(_ object: T, primaryKey: Int) throws {
+    func delete<T: Persistable>(_ object: T) throws {
         guard let classInfo = CLayerAbstraction.find(object.typeName(), in: cRealm) else {
             throw RealmError.ClassNotFound
         }
-        let object = try CLayerAbstraction.findObject(with: classInfo, primaryKey: primaryKey, in: cRealm)
+        let primaryKeyValue = try object.primaryKeyValue()
+        let object = try CLayerAbstraction.findObject(with: classInfo, primaryKey: primaryKeyValue, in: cRealm)
         try CLayerAbstraction.delete(object)
     }
     

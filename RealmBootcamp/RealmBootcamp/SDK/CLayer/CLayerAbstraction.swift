@@ -9,7 +9,7 @@ import RealmC
 
 struct CLayerAbstraction {
     
-    static func realm(for cConfiguration: OpaquePointer) -> OpaquePointer {
+    static func openRealm(with cConfiguration: OpaquePointer) -> OpaquePointer {
         return realm_open(cConfiguration)
     }
     
@@ -43,7 +43,7 @@ struct CLayerAbstraction {
         let mappedClassInfo = classInfos.map { $0.toCClassInfo() }
         let mappedPropertyInfos: [[realm_property_info_t]] = propertyInfos.map {
             $0.map {
-                $0.toCPropertyInfo()
+                $0.handle
             }
         }
         let unsafePointer = mappedPropertyInfos[0].withUnsafeBufferPointer({$0.baseAddress})
@@ -51,10 +51,42 @@ struct CLayerAbstraction {
         for index in 0..<mappedClassInfo.count {
             classPropertiesPointer.advanced(by: index).pointee = unsafePointer
         }
+        
+        let pointer = UnsafeMutablePointer<realm_class_info_t>.allocate(capacity: mappedClassInfo.count)
+        for i in 0..<mappedClassInfo.count {
+            pointer.advanced(by: i).pointee = mappedClassInfo[i]
+        }
+        print(classInfos: pointer, count: classInfos.count, classProperties: classPropertiesPointer)
+        
         guard let schema = realm_schema_new(mappedClassInfo, classInfos.count, classPropertiesPointer) else {
             throw RealmError.InvalidSchema
         }
         return schema
+    }
+    
+    static func print(classInfos: UnsafeMutablePointer<realm_class_info_t>, count: Int, classProperties: UnsafeMutablePointer<UnsafePointer<realm_property_info_t>?>) {
+        Swift.print("Count: \(count)")
+//        for i in 0..<count {
+//            let classInfo = classInfos.advanced(by: i).pointee
+//            Swift.print(classInfo.name.toString())
+//            Swift.print(classInfo.primary_key.toString())
+//            Swift.print(classInfo.num_properties)
+//            Swift.print(classInfo.num_computed_properties)
+//            Swift.print(classInfo.key.table_key)
+//            Swift.print(classInfo.flags)
+//            
+//            for j in 0..<classInfo.num_properties {
+//                let propertyInfo = classProperties.advanced(by: i).pointee!.advanced(by: j).pointee
+//                Swift.print(propertyInfo.name.toString())
+//                Swift.print(propertyInfo.public_name.toString())
+//                Swift.print(propertyInfo.type)
+//                Swift.print(propertyInfo.collection_type)
+//                Swift.print(propertyInfo.link_target.toString())
+//                Swift.print(propertyInfo.link_origin_property_name.toString())
+//                Swift.print(propertyInfo.key)
+//                Swift.print(propertyInfo.flags)
+//            }
+//        }
     }
     
     static func setSchema(_ schema: OpaquePointer, for realm: OpaquePointer) throws {
@@ -95,9 +127,7 @@ struct CLayerAbstraction {
         }
         // TODO: Add option to create without primary key.
         var primaryKey = realm_value_t()
-        guard let primaryKeyValue = object.properties().filter({ $0.label == object.primaryKey }).first?.value as? Int else {
-            throw RealmError.PrimaryKeyViolation
-        }
+        let primaryKeyValue = try object.primaryKeyValue()
         primaryKey.integer = Int64(primaryKeyValue)
         primaryKey.type = RLM_TYPE_INT
         let createdObject = realm_object_create_with_primary_key(realm, classInfo.key.toCTableKey(), primaryKey)
@@ -131,22 +161,26 @@ struct CLayerAbstraction {
         guard found.pointee == true else {
             throw RealmError.ObjectNotFound
         }
-        guard realm_object_is_valid(retrievedObject) else {
+        guard validate(retrievedObject) else {
             throw RealmError.InvalidObject
         }
         return retrievedObject
     }
     
-    static func retrievePropertyKeys(with classInfo: ClassInfo, in realm: OpaquePointer) throws -> [ColumnKey] {
+    static func validate(_ object: OpaquePointer) -> Bool {
+        return realm_object_is_valid(object)
+    }
+    
+    static func retrievePropertyKeys(with classInfo: ClassInfo, in realm: OpaquePointer) throws -> [realm_col_key_t] {
         let tableKey = classInfo.key.toCTableKey()
         let propertyKeys = UnsafeMutablePointer<realm_col_key_t>.allocate(capacity: classInfo.num_properties)
         let outNumber = UnsafeMutablePointer<size_t>.allocate(capacity: 1)
         guard realm_get_property_keys(realm, tableKey, propertyKeys, classInfo.num_properties, outNumber) else {
             throw RealmError.PropertiesNotFound
         }
-        var columnKeys = [ColumnKey]()
+        var columnKeys = [realm_col_key_t]()
         for i in 0..<classInfo.num_properties {
-            let columnKey = ColumnKey(propertyKeys.advanced(by: i).pointee)
+            let columnKey = propertyKeys.advanced(by: i).pointee
             columnKeys.append(columnKey)
         }
         return columnKeys
@@ -193,19 +227,22 @@ struct CLayerAbstraction {
         }
         var properties = [PropertyInfo]()
         for j in 0..<returnedNumberOfProperties.pointee {
-            guard let propertyInfo = PropertyInfo(propertyInfos.advanced(by: j).pointee) else {
-                throw RealmError.PropertiesNotFound
-            }
+            let propertyInfoType = propertyInfos.advanced(by: j).pointee
+            let isPrimaryKey = propertyInfoType.flags == RLM_PROPERTY_PRIMARY_KEY.rawValue
+            let propertyInfo = PropertyInfo(name: propertyInfoType.name.toString(),
+                                            type: propertyInfoType.type, 
+                                            isPrimaryKey: isPrimaryKey,
+                                            key: propertyInfoType.key)
             properties.append(propertyInfo)
         }
         return properties
     }
     
-    static func getValues(for object: OpaquePointer, propertyKeys: [ColumnKey], classInfo: ClassInfo, in realm: OpaquePointer) throws -> [String: Encodable] {
+    static func getValues(for object: OpaquePointer, propertyKeys: [realm_col_key_t], classInfo: ClassInfo, in realm: OpaquePointer) throws -> [String: Encodable] {
         let outValues = UnsafeMutablePointer<realm_value_t>.allocate(capacity: classInfo.num_properties)
         let columnKeys = UnsafeMutablePointer<realm_col_key_t>.allocate(capacity: propertyKeys.count)
         for i in 0..<propertyKeys.count {
-            columnKeys.advanced(by: i).pointee = propertyKeys[i].toCColumnKey()
+            columnKeys.advanced(by: i).pointee = propertyKeys[i]
         }
         guard realm_get_values(object, classInfo.num_properties, columnKeys, outValues) else {
             throw RealmError.FetchValuesFailed
@@ -228,10 +265,10 @@ struct CLayerAbstraction {
         return values
     }
     
-    static func updateValues(for object: OpaquePointer, propertyKeys: [ColumnKey], newValues: [Any]) throws {
+    static func updateValues(for object: OpaquePointer, propertyKeys: [realm_col_key_t], newValues: [Any]) throws {
         let columnKeys = UnsafeMutablePointer<realm_col_key_t>.allocate(capacity: propertyKeys.count)
         for i in 0..<propertyKeys.count {
-            columnKeys.advanced(by: i).pointee = propertyKeys[i].toCColumnKey()
+            columnKeys.advanced(by: i).pointee = propertyKeys[i]
         }
         var realmValues = [realm_value_t]()
         for i in 0..<newValues.count {

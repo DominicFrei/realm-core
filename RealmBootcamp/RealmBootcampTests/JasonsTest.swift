@@ -15,7 +15,7 @@ class JasonsTest: RealmTestsBaseClass {
         var int = 0
         var str = ""
         var primaryKey: String {
-            return ""
+            return "int"
         }
     }
     
@@ -35,23 +35,24 @@ class JasonsTest: RealmTestsBaseClass {
                 try realm.add(obj)
                 obj.str = "foo"
             }
+            XCTAssertEqual(obj.str, "foo")
+            XCTAssertTrue(obj.isValid())
+            var foundObj = try realm.find(MyObject.self, withPrimaryKey: 42)
+            XCTAssertEqual(foundObj, obj)
+            XCTAssertTrue(foundObj.isValid())
+            XCTAssertEqual(foundObj.str, "foo")
+            XCTAssertEqual(foundObj.int, 42)
+            XCTAssertThrowsError(foundObj.int = 84)
+            XCTAssertThrowsError(try realm.delete(foundObj))
+            try realm.write {
+                try realm.delete(foundObj)
+            }
+            XCTAssertFalse(foundObj.isValid())
+        } catch let error as RealmError {
+            XCTFail(String(describing: error))
         } catch let error {
-            XCTFail(error.localizedDescription)
+            XCTFail("Unexpected error: \(error.localizedDescription)")
         }
-        
-        XCTAssertEqual(obj.str, "foo")
-        XCTAssertTrue(obj.isValid())
-        //        let foundObj = realm.object<MyObject>(primaryKey: 42)
-        //        XCTAssertEqual(foundObj, obj)
-        //        XCTAssertTrue(foundObj.isValid)
-        //        XCTAssertEqual(foundObj.str, "foo")
-        //        XCTAssertEqual(foundObj.int, 42)
-        //        XCTAssertThrows(() { foundObj.int = 84})
-        //        XCTAssertThrows(realm.delete(foundObj))
-        //        realm.write {
-        //            realm.delete(foundObj)
-        //        }
-        //        XCAssertFalse(foundObj.isValid)
     }
     
 }

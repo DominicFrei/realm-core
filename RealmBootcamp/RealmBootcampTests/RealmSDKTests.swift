@@ -27,35 +27,31 @@ class RealmSDKTests: RealmTestsBaseClass {
         
         // Read:
         do {
-            let object = try realm.find(objectOfType: faz, withPrimaryKey: fazPrimaryKey)
+            let object = try realm.find(Faz.self, withPrimaryKey: fazPrimaryKey)
             XCTAssertEqual(object.x, fazPrimaryKey)
             XCTAssertEqual(object.y, 0)
             XCTAssertEqual(object.z, 0)
             XCTAssertEqual(object.a, "")
             XCTAssertEqual(object.b, "")
-        } catch let error as RealmError {
-            XCTFail(error.localizedDescription)
         } catch let error {
-            XCTFail("Unexpected error: \(error.localizedDescription)")
+            XCTFail(String(describing: error))
         }
         
         // Update:
         do {
             try realm.write {
-                try realm.updateValues(objectOfType: faz, withPrimaryKey: fazPrimaryKey, newValues: [fazPrimaryKey, 24, 25, "a", "b"])
+                try realm.updateValues(objectOfType: Faz.self, withPrimaryKey: fazPrimaryKey, newValues: [fazPrimaryKey, 24, 25, "a", "b"])
             }
             // TODO: Finding the object with the new key should be possible. -> Bug somewhere that needs to be found.
             // TODO: Changing the primary key should not be possible though and needs to be forbidden.
-            let object = try realm.find(objectOfType: faz, withPrimaryKey: fazPrimaryKey)
+            let object = try realm.find(Faz.self, withPrimaryKey: fazPrimaryKey)
             XCTAssertEqual(object.x, fazPrimaryKey)
             XCTAssertEqual(object.y, 24)
             XCTAssertEqual(object.z, 25)
             XCTAssertEqual(object.a, "a")
             XCTAssertEqual(object.b, "b")
-        } catch let error as RealmError {
-            XCTFail(error.localizedDescription)
         } catch let error {
-            XCTFail("Unexpected error: \(error.localizedDescription)")
+            XCTFail(String(describing: error))
         }
         
         // Add more objects:
@@ -75,7 +71,7 @@ class RealmSDKTests: RealmTestsBaseClass {
         do {
             return try Realm()
         } catch let error {
-            XCTFail(error.localizedDescription)
+            XCTFail(String(describing: error))
             return nil
         }
     }
@@ -86,19 +82,17 @@ class RealmSDKTests: RealmTestsBaseClass {
                 try realm.add(object)
             }
         } catch let error {
-            XCTFail(error.localizedDescription)
+            XCTFail(String(describing: error))
         }
     }
     
     func delete<T: Persistable>(_ object: T, withPrimaryKey primaryKey: Int, from realm: Realm) {
         do {
             try realm.write({
-                try realm.delete(object, primaryKey: primaryKey)
+                try realm.delete(object)
             })
-        } catch let error as RealmError {
-            XCTFail(error.localizedDescription)
         } catch let error {
-            XCTFail("Unexpected error: \(error.localizedDescription)")
+            XCTFail(String(describing: error))
         }
     }
     

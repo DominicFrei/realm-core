@@ -21,29 +21,20 @@ extension Persistable {
     func classProperties() throws -> [PropertyInfo] {
         var classProperties = [PropertyInfo]()
         for property in properties() {
-            let propertyName = property.label
-            var propertyInfo = realm_property_info_t()
-            propertyInfo.name = propertyName.realmString()
-            propertyInfo.public_name = "".realmString()
-            
+            let name = property.label
+            var type = realm_property_type_e(rawValue: 0)
             switch property.value {
             case is Int:
-                propertyInfo.type = RLM_PROPERTY_TYPE_INT
+                type = RLM_PROPERTY_TYPE_INT
             case is String:
-                propertyInfo.type = RLM_PROPERTY_TYPE_STRING
+                type = RLM_PROPERTY_TYPE_STRING
             default:
                 break
             }
-            
-            if self.primaryKey == property.label {
-                propertyInfo.flags = Int32(RLM_PROPERTY_PRIMARY_KEY.rawValue)
-            } else {
-                propertyInfo.flags = Int32(RLM_PROPERTY_NORMAL.rawValue)
-            }
-            guard let mappedPropertyInfo = PropertyInfo(propertyInfo) else {
-                throw RealmError.ClassNotFound
-            }
-            classProperties.append(mappedPropertyInfo)
+            let isPrimaryKey = self.primaryKey == property.label
+            let key = realm_col_key_t()
+            let propertyInfo = PropertyInfo(name: name, type: type, isPrimaryKey: isPrimaryKey, key: key)
+            classProperties.append(propertyInfo)
         }
         return classProperties
     }

@@ -5,7 +5,7 @@
 //  Created by Dominic Frei on 22/12/2020.
 //
 
-protocol Persistable: Codable {
+protocol Persistable: Codable, Equatable {
     var primaryKey: String { get }
     func isValid() -> Bool
 }
@@ -26,4 +26,15 @@ extension Persistable {
         return false
     }
     
+    func primaryKeyValue() throws -> Int {
+        guard let primaryKeyValue = self.properties().filter({ $0.label == self.primaryKey }).first?.value as? Int else {
+            throw RealmError.PrimaryKeyViolation
+        }
+        return primaryKeyValue
+    }
+    
+}
+
+func ==<T: Persistable>(lhs: T, rhs: T) -> Bool {
+    return lhs.typeName() == rhs.typeName() && lhs.primaryKey == rhs.primaryKey
 }

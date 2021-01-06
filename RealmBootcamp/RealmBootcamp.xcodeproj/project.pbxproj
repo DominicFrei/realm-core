@@ -10,6 +10,9 @@
 		7D026D462590B4AE0040D33E /* RealmC.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7D026D3D2590B4AE0040D33E /* RealmC.framework */; };
 		7D026D4B2590B4AE0040D33E /* RealmCTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D026D4A2590B4AE0040D33E /* RealmCTests.swift */; };
 		7D026D4D2590B4AE0040D33E /* RealmC.h in Headers */ = {isa = PBXBuildFile; fileRef = 7D026D3F2590B4AE0040D33E /* RealmC.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		7D39590C259CF22F00BF5C6B /* Array+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D39590B259CF22F00BF5C6B /* Array+Extension.swift */; };
+		7D395935259DE46700BF5C6B /* Examples.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D395934259DE46700BF5C6B /* Examples.swift */; };
+		7D39593B259DEA3500BF5C6B /* ObjectSchema.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D39593A259DEA3500BF5C6B /* ObjectSchema.swift */; };
 		7D8A31492590B3BD00585A2E /* RealmBootcamp.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7D8A313F2590B3BD00585A2E /* RealmBootcamp.framework */; };
 		7D8A314E2590B3BD00585A2E /* RealmSDKTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D8A314D2590B3BD00585A2E /* RealmSDKTests.swift */; };
 		7D8A31502590B3BD00585A2E /* RealmBootcamp.h in Headers */ = {isa = PBXBuildFile; fileRef = 7D8A31422590B3BD00585A2E /* RealmBootcamp.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -279,6 +282,9 @@
 		7D026D4C2590B4AE0040D33E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		7D026D582590B4C00040D33E /* module.modulemap */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.module-map"; path = module.modulemap; sourceTree = "<group>"; };
 		7D026D612590B5D90040D33E /* RealmCore.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RealmCore.xcodeproj; path = ../build.debug/RealmCore.xcodeproj; sourceTree = "<group>"; };
+		7D39590B259CF22F00BF5C6B /* Array+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Array+Extension.swift"; sourceTree = "<group>"; };
+		7D395934259DE46700BF5C6B /* Examples.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Examples.swift; sourceTree = "<group>"; };
+		7D39593A259DEA3500BF5C6B /* ObjectSchema.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ObjectSchema.swift; sourceTree = "<group>"; };
 		7D8A313F2590B3BD00585A2E /* RealmBootcamp.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = RealmBootcamp.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		7D8A31422590B3BD00585A2E /* RealmBootcamp.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RealmBootcamp.h; sourceTree = "<group>"; };
 		7D8A31432590B3BD00585A2E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -410,10 +416,13 @@
 				7D93803F2592576900F651A5 /* Realm.swift */,
 				7D93801B2592435F00F651A5 /* Configuration.swift */,
 				7D9380392592535A00F651A5 /* Schema.swift */,
+				7D39593A259DEA3500BF5C6B /* ObjectSchema.swift */,
 				7D9A714D259212E100164FE4 /* Persistable.swift */,
 				7D938008259224A900F651A5 /* Property.swift */,
 				7D8F7B9E259B43C4007B38C5 /* Errors.swift */,
 				7D8F7C18259B7197007B38C5 /* PropertyWrapper.swift */,
+				7D39590B259CF22F00BF5C6B /* Array+Extension.swift */,
+				7D395934259DE46700BF5C6B /* Examples.swift */,
 				7DC346C1259CB75800C23B76 /* CLayer */,
 			);
 			path = SDK;
@@ -913,9 +922,12 @@
 				7DC346C7259CB86D00C23B76 /* ColumnKey.swift in Sources */,
 				7DC346CD259CC50D00C23B76 /* Persistable+CLayer.swift in Sources */,
 				7DC346B6259CB3BD00C23B76 /* TableKey.swift in Sources */,
+				7D39593B259DEA3500BF5C6B /* ObjectSchema.swift in Sources */,
 				7DC346BC259CB75200C23B76 /* PropertyInfo.swift in Sources */,
 				7D9380222592450900F651A5 /* String+RealmString.swift in Sources */,
+				7D39590C259CF22F00BF5C6B /* Array+Extension.swift in Sources */,
 				7DC346B0259CB34800C23B76 /* ClassInfo.swift in Sources */,
+				7D395935259DE46700BF5C6B /* Examples.swift in Sources */,
 				7D938009259224A900F651A5 /* Property.swift in Sources */,
 				7D9A714E259212E100164FE4 /* Persistable.swift in Sources */,
 				7D93803A2592535A00F651A5 /* Schema.swift in Sources */,

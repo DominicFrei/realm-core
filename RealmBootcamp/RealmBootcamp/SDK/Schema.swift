@@ -5,26 +5,51 @@
 //  Created by Dominic Frei on 22/12/2020.
 //
 
+import RealmC
+
 struct Schema {
     
     var cSchema: OpaquePointer
     
-    init() {
+    private let realm: Realm?
+    
+    init(realm: Realm? = nil) {
         cSchema = CLayerAbstraction.createSchema()
+        self.realm = realm
     }
     
-    init(classInfos: [ClassInfo], classProperties: [[PropertyInfo]]) throws {
-        guard classInfos.count == classProperties.count else {
+    init(classInfos: [ClassInfo], propertyInfos: [[PropertyInfo]], realm: Realm) throws {
+        guard classInfos.count == propertyInfos.count else {
+            throw RealmError.InvalidSchema
+        }        
+        cSchema = try CLayerAbstraction.createSchema(classInfos: classInfos, propertyInfos: propertyInfos)
+        self.realm = realm
+    }
+    
+    init(classInfos: UnsafeMutablePointer<realm_class_info_t>, count: Int, classProperties: UnsafeMutablePointer<UnsafePointer<realm_property_info_t>?>, realm: Realm) throws {
+        
+        CLayerAbstraction.print(classInfos: classInfos, count: count, classProperties: classProperties)
+        
+        guard let schema = realm_schema_new(classInfos, count, classProperties) else {
             throw RealmError.InvalidSchema
         }
-        
-        let unsafePointer = classProperties[0].withUnsafeBufferPointer({$0.baseAddress})
-        let classPropertiesPointer = UnsafeMutablePointer<UnsafePointer<PropertyInfo>?>.allocate(capacity: classInfos[0].num_properties)
-        for index in 0..<classInfos.count {
-            classPropertiesPointer.advanced(by: index).pointee = unsafePointer
+        self.cSchema = schema
+        self.realm = realm
+    }
+    
+    var objectSchemas: [ObjectSchema] {
+        guard let realm = self.realm else {
+            return [ObjectSchema]()
         }
-        
-        cSchema = try CLayerAbstraction.createSchema(classInfos: classInfos, propertyInfos: classProperties)
+        // fetch number of tables
+        let numClasses = realm_get_num_classes(realm.cRealm)
+        // allocate an array to contain the classes given a table count
+        let outKeys = UnsafeMutablePointer<realm_table_key_t>.allocate(capacity: numClasses)
+        realm_get_class_keys(realm.cRealm, outKeys, -1, nil)
+        // map the class keys to the ObjectSchema struct
+        return (0..<numClasses).map { index in
+            ObjectSchema(realm, key: outKeys.advanced(by: index).pointee)
+        }
     }
     
 }
