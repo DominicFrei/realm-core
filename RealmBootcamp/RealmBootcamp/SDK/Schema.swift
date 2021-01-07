@@ -21,14 +21,14 @@ struct Schema {
     init(classInfos: [ClassInfo], propertyInfos: [[PropertyInfo]], realm: Realm) throws {
         guard classInfos.count == propertyInfos.count else {
             throw RealmError.InvalidSchema
-        }        
+        }
         cSchema = try CLayerAbstraction.createSchema(classInfos: classInfos, propertyInfos: propertyInfos)
         self.realm = realm
     }
     
     init(classInfos: UnsafeMutablePointer<realm_class_info_t>, count: Int, classProperties: UnsafeMutablePointer<UnsafePointer<realm_property_info_t>?>, realm: Realm) throws {
         
-        CLayerAbstraction.print(classInfos: classInfos, count: count, classProperties: classProperties)
+//        CLayerAbstraction.print(classInfos: classInfos, count: count, classProperties: classProperties)
         
         guard let schema = realm_schema_new(classInfos, count, classProperties) else {
             throw RealmError.InvalidSchema

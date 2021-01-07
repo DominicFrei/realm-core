@@ -79,7 +79,10 @@ class Realm {
 
         // Add the new class to the existing class and property info.
         classInfos.advanced(by: existingClassesCount).pointee = type.classInfo().toCClassInfo()
-        classProperties.advanced(by: existingClassesCount).pointee = try type.classProperties().map {$0.handle}.withUnsafeBufferPointer({$0.baseAddress})
+        let classPropertyArray: [PropertyInfo] = try type.classProperties()
+        let mappedProperties: [realm_property_info_t] = classPropertyArray.map {$0.handle}
+        let propertiesAsUnsafePointer: UnsafePointer<realm_property_info_t> = mappedProperties.withUnsafeBufferPointer({$0.baseAddress!})
+        classProperties.advanced(by: existingClassesCount).pointee = propertiesAsUnsafePointer
 
         // Set the new schema in the current realm.
         schema = try Schema(classInfos: classInfos, count: existingClassesCount + 1, classProperties: classProperties, realm: self)

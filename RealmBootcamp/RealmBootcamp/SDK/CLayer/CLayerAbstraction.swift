@@ -46,17 +46,17 @@ struct CLayerAbstraction {
                 $0.handle
             }
         }
-        let unsafePointer = mappedPropertyInfos[0].withUnsafeBufferPointer({$0.baseAddress})
+        let unsafePointer: UnsafePointer<realm_property_info_t>? = mappedPropertyInfos[0].withUnsafeBufferPointer({$0.baseAddress})
         let classPropertiesPointer = UnsafeMutablePointer<UnsafePointer<realm_property_info_t>?>.allocate(capacity: mappedClassInfo[0].num_properties)
         for index in 0..<mappedClassInfo.count {
             classPropertiesPointer.advanced(by: index).pointee = unsafePointer
         }
         
-        let pointer = UnsafeMutablePointer<realm_class_info_t>.allocate(capacity: mappedClassInfo.count)
-        for i in 0..<mappedClassInfo.count {
-            pointer.advanced(by: i).pointee = mappedClassInfo[i]
-        }
-        print(classInfos: pointer, count: classInfos.count, classProperties: classPropertiesPointer)
+//        let pointer = UnsafeMutablePointer<realm_class_info_t>.allocate(capacity: mappedClassInfo.count)
+//        for i in 0..<mappedClassInfo.count {
+//            pointer.advanced(by: i).pointee = mappedClassInfo[i]
+//        }
+//        print(classInfos: pointer, count: classInfos.count, classProperties: classPropertiesPointer)
         
         guard let schema = realm_schema_new(mappedClassInfo, classInfos.count, classPropertiesPointer) else {
             throw RealmError.InvalidSchema
@@ -64,8 +64,8 @@ struct CLayerAbstraction {
         return schema
     }
     
-    static func print(classInfos: UnsafeMutablePointer<realm_class_info_t>, count: Int, classProperties: UnsafeMutablePointer<UnsafePointer<realm_property_info_t>?>) {
-        Swift.print("Count: \(count)")
+//    static func print(classInfos: UnsafeMutablePointer<realm_class_info_t>, count: Int, classProperties: UnsafeMutablePointer<UnsafePointer<realm_property_info_t>?>) {
+//        Swift.print("Count: \(count)")
 //        for i in 0..<count {
 //            let classInfo = classInfos.advanced(by: i).pointee
 //            Swift.print(classInfo.name.toString())
@@ -87,7 +87,7 @@ struct CLayerAbstraction {
 //                Swift.print(propertyInfo.flags)
 //            }
 //        }
-    }
+//    }
     
     static func setSchema(_ schema: OpaquePointer, for realm: OpaquePointer) throws {
         let success = realm_set_schema(realm, schema)
