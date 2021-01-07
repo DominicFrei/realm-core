@@ -24,17 +24,6 @@ struct CLayerAbstraction {
         }
     }
     
-    // TODO: Works without?
-//    static func applySchema(_ schema: OpaquePointer, to configuration: OpaquePointer) {
-//        var success: Bool
-//        success = realm_config_set_schema(configuration, schema)
-//        assert(success)
-//        success = realm_config_set_schema_mode(configuration, RLM_SCHEMA_MODE_AUTOMATIC)
-//        assert(success)
-//        success = realm_config_set_schema_version(configuration, 1)
-//        assert(success)
-//    }
-    
     static func createSchema() -> OpaquePointer {
         return realm_schema_new(nil, 0, nil)
     }
@@ -52,42 +41,11 @@ struct CLayerAbstraction {
             classPropertiesPointer.advanced(by: index).pointee = unsafePointer
         }
         
-//        let pointer = UnsafeMutablePointer<realm_class_info_t>.allocate(capacity: mappedClassInfo.count)
-//        for i in 0..<mappedClassInfo.count {
-//            pointer.advanced(by: i).pointee = mappedClassInfo[i]
-//        }
-//        print(classInfos: pointer, count: classInfos.count, classProperties: classPropertiesPointer)
-        
         guard let schema = realm_schema_new(mappedClassInfo, classInfos.count, classPropertiesPointer) else {
             throw RealmError.InvalidSchema
         }
         return schema
     }
-    
-//    static func print(classInfos: UnsafeMutablePointer<realm_class_info_t>, count: Int, classProperties: UnsafeMutablePointer<UnsafePointer<realm_property_info_t>?>) {
-//        Swift.print("Count: \(count)")
-//        for i in 0..<count {
-//            let classInfo = classInfos.advanced(by: i).pointee
-//            Swift.print(classInfo.name.toString())
-//            Swift.print(classInfo.primary_key.toString())
-//            Swift.print(classInfo.num_properties)
-//            Swift.print(classInfo.num_computed_properties)
-//            Swift.print(classInfo.key.table_key)
-//            Swift.print(classInfo.flags)
-//            
-//            for j in 0..<classInfo.num_properties {
-//                let propertyInfo = classProperties.advanced(by: i).pointee!.advanced(by: j).pointee
-//                Swift.print(propertyInfo.name.toString())
-//                Swift.print(propertyInfo.public_name.toString())
-//                Swift.print(propertyInfo.type)
-//                Swift.print(propertyInfo.collection_type)
-//                Swift.print(propertyInfo.link_target.toString())
-//                Swift.print(propertyInfo.link_origin_property_name.toString())
-//                Swift.print(propertyInfo.key)
-//                Swift.print(propertyInfo.flags)
-//            }
-//        }
-//    }
     
     static func setSchema(_ schema: OpaquePointer, for realm: OpaquePointer) throws {
         let success = realm_set_schema(realm, schema)
@@ -117,7 +75,7 @@ struct CLayerAbstraction {
     static func endTransaction(on realm: OpaquePointer) throws {
         let didSucceed = realm_commit(realm)
         guard didSucceed else {
-            throw RealmError.StartTransaction
+            throw RealmError.EndTransaction
         }
     }
     

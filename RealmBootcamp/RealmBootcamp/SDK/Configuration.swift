@@ -17,15 +17,4 @@ struct Configuration {
         try CLayerAbstraction.setPath(path, to: cConfiguration)
     }
     
-    // TODO: Works without?
-//    func apply(schema: Schema, mode: realm_schema_mode_e, version: UInt64) {
-//        var success: Bool
-//        success = realm_config_set_schema(cConfiguration, schema.cSchema)
-//        assert(success)
-//        success = realm_config_set_schema_mode(cConfiguration, mode)
-//        assert(success)
-//        success = realm_config_set_schema_version(cConfiguration, version)
-//        assert(success)
-//    }
-    
 }

@@ -37,36 +37,11 @@ class Realm {
         try CLayerAbstraction.create(object, in: self.cRealm)
     }
     
-//    func addTypeIfNecessary<T: Persistable>(_ type: T) throws {
-//        let classInfo = CLayerAbstraction.find(type.typeName(), in: cRealm)
-//        guard classInfo == nil else {
-//            return
-//        }
-//
-//        var (classInfos, classProperties) = try getCurrentClassAndPropertyInfo()
-//
-//        // Add the new class to the existing class and property info.
-//        classInfos.append(type.classInfo())
-//        classProperties.append(try type.classProperties())
-//
-//        // Set the new schema in the current realm.
-//        schema = try Schema(classInfos: classInfos, propertyInfos: classProperties, realm: self)
-//        // TODO: Rework to not just commi and start write again but save and execute whole transaction after add.
-//        try CLayerAbstraction.endTransaction(on: cRealm)
-//        try CLayerAbstraction.setSchema(schema.cSchema, for: cRealm)
-//        try CLayerAbstraction.setSchema(schema.cSchema, in: configuration.cConfiguration)
-//        self.schema.cSchema = CLayerAbstraction.getSchema(for: cRealm)
-//        try CLayerAbstraction.startTransaction(on: cRealm)
-//    }
-    
     func addTypeIfNecessary<T: Persistable>(_ type: T) throws {
         let classInfo = CLayerAbstraction.find(type.typeName(), in: cRealm)
         guard classInfo == nil else {
             return
         }
-
-        //        var (classInfos, classProperties): ([ClassInfo], [[PropertyInfo]]) = try getCurrentClassAndPropertyInfo()
-
         let existingClassesCount = schema.objectSchemas.count
         let classInfos = UnsafeMutablePointer<realm_class_info_t>.allocate(capacity: existingClassesCount + 1)
         let classProperties = UnsafeMutablePointer<UnsafePointer<realm_property_info_t>?>.allocate(capacity: existingClassesCount + 1)
