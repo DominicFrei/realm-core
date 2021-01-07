@@ -5,6 +5,8 @@
 //  Created by Dominic Frei on 22/12/2020.
 //
 
+import RealmC
+
 protocol Persistable: Codable, Equatable {
     var primaryKey: String { get }
     func isValid() -> Bool
@@ -31,7 +33,7 @@ extension Persistable {
             throw RealmError.PrimaryKeyViolation
         }
         return primaryKeyValue
-    }
+    }    
     
 }
 

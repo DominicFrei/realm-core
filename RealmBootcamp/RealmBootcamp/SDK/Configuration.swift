@@ -5,6 +5,8 @@
 //  Created by Dominic Frei on 22/12/2020.
 //
 
+import RealmC
+
 struct Configuration {
     
     let cConfiguration: OpaquePointer
@@ -13,8 +15,11 @@ struct Configuration {
         let uuid = UUID().uuidString
         let path = "\(uuid).realm"
         print(path)
-        cConfiguration = CLayerAbstraction.createConfiguration()
-        try CLayerAbstraction.setPath(path, to: cConfiguration)
+        cConfiguration = realm_config_new()
+        let realmPath = path.realmString()
+        guard realm_config_set_path(cConfiguration, realmPath) else {
+            throw RealmError.InvalidPath
+        }
     }
     
 }

@@ -9,37 +9,23 @@ import RealmC
 
 class Realm {
     
-    struct EncodableWrapper: Encodable {
-        let wrapped: Encodable
-        func encode(to encoder: Encoder) throws {
-            try self.wrapped.encode(to: encoder)
-        }
-    }
-    
     let cRealm: OpaquePointer
     var configuration: Configuration
     var schema: Schema
     
     init() throws {
         configuration = try Configuration()
-        cRealm = CLayerAbstraction.openRealm(with: configuration.cConfiguration)
+        cRealm = realm_open(configuration.cConfiguration)
         schema = Schema()
-    }
-    
-    func write(_ transaction: () throws -> Void) throws {
-        try CLayerAbstraction.startTransaction(on: cRealm)
-        try transaction()
-        try CLayerAbstraction.endTransaction(on: cRealm)
     }
     
     func add<T: Persistable>(_ object: T) throws {
         try addTypeIfNecessary(object)
-        try CLayerAbstraction.create(object, in: self.cRealm)
+        try create(object)
     }
     
     func addTypeIfNecessary<T: Persistable>(_ type: T) throws {
-        let classInfo = CLayerAbstraction.find(type.typeName(), in: cRealm)
-        guard classInfo == nil else {
+        guard classInfo(for: String(describing: T.self)) == nil else {
             return
         }
         let existingClassesCount = schema.objectSchemas.count
@@ -62,34 +48,39 @@ class Realm {
         // Set the new schema in the current realm.
         schema = try Schema(classInfos: classInfos, count: existingClassesCount + 1, classProperties: classProperties, realm: self)
         // TODO: Rework to not just commit and start write again but save and execute whole transaction after add.
-        try CLayerAbstraction.endTransaction(on: cRealm)
-        try CLayerAbstraction.setSchema(schema.cSchema, for: cRealm)
-        try CLayerAbstraction.setSchema(schema.cSchema, in: configuration.cConfiguration)
-        schema.cSchema = CLayerAbstraction.getSchema(for: cRealm)
-        try CLayerAbstraction.startTransaction(on: cRealm)
+        try endTransaction()
+        guard realm_set_schema(cRealm, schema.cSchema) else {
+            throw RealmError.SchemaChange
+        }
+        guard realm_config_set_schema(configuration.cConfiguration, schema.cSchema) else {
+            throw RealmError.SchemaChange
+        }
+        schema.cSchema = realm_get_schema(cRealm)
+        try startTransaction()
     }
     
     func getCurrentClassAndPropertyInfo() throws -> (classes: [ClassInfo], properties: [[PropertyInfo]]) {
-        let classKeys = try CLayerAbstraction.tableKeys(from: cRealm)
+        let classKeys = try tableKeys()
         var classInfos = [ClassInfo]()
         var classProperties = [[PropertyInfo]]()
         for i in 0..<classKeys.count {
             let tableKey = classKeys[i]
-            let classInfo = try CLayerAbstraction.classInfo(for: tableKey, from: cRealm)
+            let classInfo = try getClassInfo(for: tableKey)
             classInfos.append(ClassInfo(classInfo))
-            let properties = try CLayerAbstraction.propertyInfo(for: classInfo, in: cRealm)
+            let properties = try propertyInfo(for: classInfo)
             classProperties.append(properties)
         }
         return (classInfos, classProperties)
     }
     
     func find<T: Persistable>(_ type: T.Type, withPrimaryKey primaryKey: Int) throws -> T {
-        guard let classInfo = CLayerAbstraction.find(String(describing: type), in: cRealm) else {
+        let className = String(describing: type)
+        guard let classInfo = classInfo(for: className) else {
             throw RealmError.ClassNotFound
         }
-        let propertyKeys = try CLayerAbstraction.retrievePropertyKeys(with: classInfo, in: cRealm)
-        let object = try CLayerAbstraction.findObject(with: classInfo, primaryKey: primaryKey, in: cRealm)
-        let values: [String: Encodable] = try CLayerAbstraction.getValues(for: object, propertyKeys: propertyKeys, classInfo: classInfo, in: cRealm)
+        let propertyKeys = try retrievePropertyKeys(with: classInfo)
+        let object = try findObject(with: classInfo, primaryKey: primaryKey)
+        let values: [String: Encodable] = try getValues(for: object, propertyKeys: propertyKeys, classInfo: classInfo)
         
         let wrappedDict = values.mapValues(EncodableWrapper.init(wrapped:))
         let jsonEncoder = JSONEncoder()
@@ -105,6 +96,235 @@ class Realm {
         return model!
     }
     
+    func updateValues<T: Persistable>(objectOfType type: T.Type, withPrimaryKey primaryKey: Int, newValues: [Any]) throws {
+        let className = String(describing: type)
+        guard let classInfo = classInfo(for: className) else {
+            throw RealmError.ClassNotFound
+        }
+        let propertyKeys = try retrievePropertyKeys(with: classInfo)
+        let object = try findObject(with: classInfo, primaryKey: primaryKey)
+        return try updateValues(for: object, propertyKeys: propertyKeys, newValues: newValues)
+    }
+    
+    func delete<T: Persistable>(_ object: T) throws {
+        guard let classInfo = classInfo(for: object.typeName()) else {
+            throw RealmError.ClassNotFound
+        }
+        let primaryKeyValue = try object.primaryKeyValue()
+        let object = try findObject(with: classInfo, primaryKey: primaryKeyValue)
+        guard realm_object_delete(object) else {
+            throw RealmError.ObjectNotFound
+        }
+    }
+    
+    func create<T: Persistable>(_ object: T) throws {
+        let className = String(describing: T.self)
+        guard let classInfo = classInfo(for: className) else {
+            throw RealmError.ClassNotFound
+        }
+        // TODO: Add option to create without primary key.
+        var primaryKey = realm_value_t()
+        let primaryKeyValue = try object.primaryKeyValue()
+        primaryKey.integer = Int64(primaryKeyValue)
+        primaryKey.type = RLM_TYPE_INT
+        let createdObject = realm_object_create_with_primary_key(cRealm, classInfo.key.toCTableKey(), primaryKey)
+        
+        guard createdObject != nil else {
+            throw RealmError.ObjectCreation
+        }
+    }
+    
+    func classInfo(for className: String) -> ClassInfo? {
+        let didFindClass = UnsafeMutablePointer<Bool>.allocate(capacity: 1)
+        let classInfo = UnsafeMutablePointer<realm_class_info_t>.allocate(capacity: 1)
+        let didSucceed = realm_find_class(cRealm, className.realmString(), didFindClass, classInfo)
+        guard didSucceed && didFindClass.pointee else {
+            return nil
+        }
+        return ClassInfo(classInfo.pointee)
+    }
+    
+    func findObject(with classInfo: ClassInfo, primaryKey: Int) throws -> OpaquePointer {
+        
+        // TODO: Primary key should be optional.
+        var pkValue = realm_value_t()
+        pkValue.integer = Int64(primaryKey)
+        pkValue.type = RLM_TYPE_INT
+        
+        let found = UnsafeMutablePointer<Bool>.allocate(capacity: 1)
+        guard let retrievedObject = realm_object_find_with_primary_key(cRealm, classInfo.key.toCTableKey(), pkValue, found) else {
+            throw RealmError.ObjectNotFound
+        }
+        guard found.pointee == true else {
+            throw RealmError.ObjectNotFound
+        }
+        guard realm_object_is_valid(retrievedObject) else {
+            throw RealmError.InvalidObject
+        }
+        return retrievedObject
+    }
+    
+    func retrievePropertyKeys(with classInfo: ClassInfo) throws -> [realm_col_key_t] {
+        let tableKey = classInfo.key.toCTableKey()
+        let propertyKeys = UnsafeMutablePointer<realm_col_key_t>.allocate(capacity: classInfo.num_properties)
+        let outNumber = UnsafeMutablePointer<size_t>.allocate(capacity: 1)
+        guard realm_get_property_keys(cRealm, tableKey, propertyKeys, classInfo.num_properties, outNumber) else {
+            throw RealmError.PropertiesNotFound
+        }
+        var columnKeys = [realm_col_key_t]()
+        for i in 0..<classInfo.num_properties {
+            let columnKey = propertyKeys.advanced(by: i).pointee
+            columnKeys.append(columnKey)
+        }
+        return columnKeys
+    }
+    
+    func tableKeys() throws -> [TableKey] {
+        let numberOfClasses = realm_get_num_classes(cRealm)
+        let classKeys = UnsafeMutablePointer<realm_table_key_t>.allocate(capacity: numberOfClasses)
+        let numberOfClassKeys = UnsafeMutablePointer<Int>.allocate(capacity: 1)
+        let success = realm_get_class_keys(cRealm, classKeys, numberOfClasses, numberOfClassKeys)
+        guard success && numberOfClasses == numberOfClassKeys.pointee else {
+            throw RealmError.ClassNotFound
+        }
+        var tableKeys = [TableKey]()
+        for i in 0..<numberOfClassKeys.pointee {
+            let tableKey = TableKey(classKeys.advanced(by: i).pointee)
+            tableKeys.append(tableKey)
+        }
+        return tableKeys
+    }
+    
+    func getClassInfo(for tableKey: TableKey) throws -> realm_class_info_t {
+        let classInfo = UnsafeMutablePointer<realm_class_info_t>.allocate(capacity: 1)
+        var rTableKey = realm_table_key_t()
+        rTableKey.table_key = tableKey.key
+        let success = realm_get_class(cRealm, rTableKey, classInfo)
+        guard success else {
+            throw RealmError.ClassNotFound
+        }
+        return classInfo.pointee
+    }
+    
+    func propertyInfo(for classInfo: realm_class_info_t) throws -> [PropertyInfo] {
+        let numberOfProperties = classInfo.num_properties
+        let propertyInfos = UnsafeMutablePointer<realm_property_info_t>.allocate(capacity: numberOfProperties)
+        let returnedNumberOfProperties = UnsafeMutablePointer<Int>.allocate(capacity: 1)
+        let success = realm_get_class_properties(cRealm, classInfo.key, propertyInfos, numberOfProperties, returnedNumberOfProperties)
+        guard success else {
+            throw RealmError.PropertiesNotFound
+        }
+        var properties = [PropertyInfo]()
+        for j in 0..<returnedNumberOfProperties.pointee {
+            let propertyInfoType = propertyInfos.advanced(by: j).pointee
+            let isPrimaryKey = propertyInfoType.flags == RLM_PROPERTY_PRIMARY_KEY.rawValue
+            let propertyInfo = PropertyInfo(name: propertyInfoType.name.toString(),
+                                            type: propertyInfoType.type,
+                                            isPrimaryKey: isPrimaryKey,
+                                            key: propertyInfoType.key)
+            properties.append(propertyInfo)
+        }
+        return properties
+    }
+    
+    func getValues(for object: OpaquePointer, propertyKeys: [realm_col_key_t], classInfo: ClassInfo) throws -> [String: Encodable] {
+        let outValues = UnsafeMutablePointer<realm_value_t>.allocate(capacity: classInfo.num_properties)
+        let columnKeys = UnsafeMutablePointer<realm_col_key_t>.allocate(capacity: propertyKeys.count)
+        for i in 0..<propertyKeys.count {
+            columnKeys.advanced(by: i).pointee = propertyKeys[i]
+        }
+        guard realm_get_values(object, classInfo.num_properties, columnKeys, outValues) else {
+            throw RealmError.FetchValuesFailed
+        }
+        
+        var values = [String: Encodable]()
+        for i in 0..<classInfo.num_properties {
+            let outPropertyInfo = UnsafeMutablePointer<realm_property_info_t>.allocate(capacity: 1)
+            realm_get_property(cRealm, classInfo.key.toCTableKey(), columnKeys.advanced(by: i).pointee, outPropertyInfo)
+            switch outValues.advanced(by: i).pointee.type {
+            case RLM_TYPE_INT:
+                values[String(cString: outPropertyInfo.pointee.name.data)] = outValues.advanced(by: i).pointee.integer
+            case RLM_TYPE_STRING:
+                values[String(cString: outPropertyInfo.pointee.name.data)] = String(cString: outValues.advanced(by: i).pointee.string.data)
+            default:
+                assert(false)
+            }
+        }
+        
+        return values
+    }
+    
+    func updateValues(for object: OpaquePointer, propertyKeys: [realm_col_key_t], newValues: [Any]) throws {
+        let columnKeys = UnsafeMutablePointer<realm_col_key_t>.allocate(capacity: propertyKeys.count)
+        for i in 0..<propertyKeys.count {
+            columnKeys.advanced(by: i).pointee = propertyKeys[i]
+        }
+        var realmValues = [realm_value_t]()
+        for i in 0..<newValues.count {
+            var value = realm_value_t()
+            switch newValues[i] {
+            case let newValue as Int:
+                value.type = RLM_TYPE_INT
+                value.integer = Int64(newValue)
+            case let newValue as String:
+                value.type = RLM_TYPE_STRING
+                value.string = newValue.realmString()
+            default:
+                break
+            }
+            realmValues.append(value)
+        }
+        
+        guard newValues.count == realmValues.count else {
+            throw RealmError.UpdateFailed
+        }
+        
+        let valuesAsPointer = UnsafeMutablePointer<realm_value_t>.allocate(capacity: realmValues.count)
+        for i in 0..<realmValues.count {
+            (valuesAsPointer + i).pointee = realmValues[i]
+        }
+        guard realm_set_values(object, realmValues.count, columnKeys, valuesAsPointer, false) else {
+            throw RealmError.UpdateFailed
+        }
+    }
+    
+}
+
+// MARK: - Transactions
+
+extension Realm {
+    
+    func write(_ transaction: () throws -> Void) throws {
+        try startTransaction()
+        try transaction()
+        try endTransaction()
+    }
+    
+    func startTransaction() throws {
+        guard realm_begin_write(cRealm) else {
+            throw RealmError.StartTransaction
+        }
+    }
+    
+    func endTransaction() throws {
+        guard realm_commit(cRealm) else {
+            throw RealmError.EndTransaction
+        }
+    }
+    
+}
+
+// MARK: - Decoding
+
+extension Realm {
+    
+    struct EncodableWrapper: Encodable {
+        let wrapped: Encodable
+        func encode(to encoder: Encoder) throws {
+            try self.wrapped.encode(to: encoder)
+        }
+    }
+    
     func decodeData<T: Persistable>(_ data: Data) -> T? {
         var model: T?
         do {
@@ -114,24 +334,6 @@ class Realm {
             assert(false)
         }
         return model
-    }
-    
-    func updateValues<T: Persistable>(objectOfType type: T.Type, withPrimaryKey primaryKey: Int, newValues: [Any]) throws {
-        guard let classInfo = CLayerAbstraction.find(String(describing: type), in: cRealm) else {
-            throw RealmError.ClassNotFound
-        }
-        let propertyKeys = try CLayerAbstraction.retrievePropertyKeys(with: classInfo, in: cRealm)
-        let object = try CLayerAbstraction.findObject(with: classInfo, primaryKey: primaryKey, in: cRealm)
-        return try CLayerAbstraction.updateValues(for: object, propertyKeys: propertyKeys, newValues: newValues)
-    }
-    
-    func delete<T: Persistable>(_ object: T) throws {
-        guard let classInfo = CLayerAbstraction.find(object.typeName(), in: cRealm) else {
-            throw RealmError.ClassNotFound
-        }
-        let primaryKeyValue = try object.primaryKeyValue()
-        let object = try CLayerAbstraction.findObject(with: classInfo, primaryKey: primaryKeyValue, in: cRealm)
-        try CLayerAbstraction.delete(object)
     }
     
 }
