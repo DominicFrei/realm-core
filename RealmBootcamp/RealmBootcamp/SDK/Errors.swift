@@ -5,7 +5,6 @@
 //  Created by Dominic Frei on 29/12/2020.
 //
 
-// TODO: Naming
 enum RealmError: Error {
     case ClassNotFound
     case PropertiesNotFound
