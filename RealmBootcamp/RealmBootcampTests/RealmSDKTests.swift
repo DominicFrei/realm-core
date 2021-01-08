@@ -67,6 +67,40 @@ class RealmSDKTests: RealmTestsBaseClass {
         
     }
     
+    func testFoo2() {
+        
+        let foo2primaryKey = 42
+        var foo2 = Foo2()
+        foo2.x = foo2primaryKey
+        
+        // Open Realm:
+        guard let realm = openRealm() else {
+            XCTFail("Could not open realm.")
+            return
+        }
+        
+        // Create:
+        do {
+            try realm.write {
+                try realm.add2(foo2)
+            }
+        } catch let error {
+            XCTFail(String(describing: error))
+        }
+        
+        // Read:
+        do {
+//            let object = try realm.find2(Foo2.self, withPrimaryKey: foo2primaryKey)
+//            XCTAssertEqual(object.x, foo2primaryKey)
+//            XCTAssertEqual(object.y, 0)
+//            XCTAssertEqual(object.z, 0)
+//            XCTAssertEqual(object.a, "")
+//            XCTAssertEqual(object.b, "")
+        } catch let error {
+            XCTFail(String(describing: error))
+        }
+    }
+    
     func openRealm() -> Realm? {
         do {
             return try Realm()

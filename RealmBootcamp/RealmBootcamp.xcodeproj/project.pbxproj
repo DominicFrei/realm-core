@@ -31,6 +31,7 @@
 		7D93803A2592535A00F651A5 /* Schema.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D9380392592535A00F651A5 /* Schema.swift */; };
 		7D9380402592576900F651A5 /* Realm.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D93803F2592576900F651A5 /* Realm.swift */; };
 		7D9A714E259212E100164FE4 /* Persistable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D9A714D259212E100164FE4 /* Persistable.swift */; };
+		7DC2E43725A8999E00D00B29 /* Foo2.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DC2E43625A8999E00D00B29 /* Foo2.swift */; };
 		7DC346B0259CB34800C23B76 /* ClassInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DC346AF259CB34800C23B76 /* ClassInfo.swift */; };
 		7DC346B6259CB3BD00C23B76 /* TableKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DC346B5259CB3BD00C23B76 /* TableKey.swift */; };
 		7DC346BC259CB75200C23B76 /* PropertyInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DC346BB259CB75200C23B76 /* PropertyInfo.swift */; };
@@ -304,6 +305,7 @@
 		7D9380392592535A00F651A5 /* Schema.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Schema.swift; sourceTree = "<group>"; };
 		7D93803F2592576900F651A5 /* Realm.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Realm.swift; sourceTree = "<group>"; };
 		7D9A714D259212E100164FE4 /* Persistable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Persistable.swift; sourceTree = "<group>"; };
+		7DC2E43625A8999E00D00B29 /* Foo2.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Foo2.swift; sourceTree = "<group>"; };
 		7DC346AF259CB34800C23B76 /* ClassInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClassInfo.swift; sourceTree = "<group>"; };
 		7DC346B5259CB3BD00C23B76 /* TableKey.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TableKey.swift; sourceTree = "<group>"; };
 		7DC346BB259CB75200C23B76 /* PropertyInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PropertyInfo.swift; sourceTree = "<group>"; };
@@ -466,6 +468,7 @@
 				7D8F7C48259B727B007B38C5 /* JasonsTest.swift */,
 				7D8F7C42259B7229007B38C5 /* PropertyWrapperTests.swift */,
 				7D93802725924C0000F651A5 /* Foo.swift */,
+				7DC2E43625A8999E00D00B29 /* Foo2.swift */,
 				7D93802D25924EC800F651A5 /* Bar.swift */,
 				7D938033259252A600F651A5 /* Baz.swift */,
 				7D8F7ACE25936F5D007B38C5 /* Faz.swift */,
@@ -939,6 +942,7 @@
 				7D8F7B712593AE84007B38C5 /* RealmTestsBaseClass.swift in Sources */,
 				7D938034259252A600F651A5 /* Baz.swift in Sources */,
 				7D93802825924C0000F651A5 /* Foo.swift in Sources */,
+				7DC2E43725A8999E00D00B29 /* Foo2.swift in Sources */,
 				7D8A314E2590B3BD00585A2E /* RealmSDKTests.swift in Sources */,
 				7D8F7C43259B7229007B38C5 /* PropertyWrapperTests.swift in Sources */,
 				7D8F7ACF25936F5D007B38C5 /* Faz.swift in Sources */,
