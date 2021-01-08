@@ -31,7 +31,7 @@ extension Realm {
     }
     
     func addTypeIfNecessary<T: Persistable>(_ type: T) throws {
-        guard classInfo(for: String(describing: T.self)) == nil else {
+        guard T.classInfoo(in: self) == nil else {
             return
         }
         let existingClassesCount = schema.objectSchemas.count
@@ -65,16 +65,15 @@ extension Realm {
     }
     
     func create<T: Persistable>(_ object: T) throws {
-        let className = String(describing: T.self)
-        guard let classInfo = classInfo(for: className) else {
-            throw RealmError.ClassNotFound
-        }
         // TODO: Add option to create without primary key.
         var primaryKey = realm_value_t()
         let primaryKeyValue = try object.primaryKeyValue()
         primaryKey.integer = Int64(primaryKeyValue)
         primaryKey.type = RLM_TYPE_INT
-        let createdObject = realm_object_create_with_primary_key(cRealm, classInfo.key.toCTableKey(), primaryKey)
+        guard let tableKey = object.tableKey(in: self) else {
+            throw RealmError.ClassNotFound
+        }
+        let createdObject = realm_object_create_with_primary_key(cRealm, tableKey, primaryKey)
         
         guard createdObject != nil else {
             throw RealmError.ObjectCreation
@@ -88,12 +87,11 @@ extension Realm {
 extension Realm {
     
     func find<T: Persistable>(_ type: T.Type, withPrimaryKey primaryKey: Int) throws -> T {
-        let className = String(describing: type)
-        guard let classInfo = classInfo(for: className) else {
+        guard let classInfo = T.classInfoo(in: self) else {
             throw RealmError.ClassNotFound
         }
         let propertyKeys = try retrievePropertyKeys(with: classInfo)
-        let object = try findObject(with: classInfo, primaryKey: primaryKey)
+        let object = try findObject(with: classInfo.key.toCTableKey(), primaryKey: primaryKey)
         let values: [String: Encodable] = try getValues(for: object, propertyKeys: propertyKeys, classInfo: classInfo)
         
         let wrappedDict = values.mapValues(EncodableWrapper.init(wrapped:))
@@ -144,12 +142,11 @@ extension Realm {
 extension Realm {
     
     func updateValues<T: Persistable>(objectOfType type: T.Type, withPrimaryKey primaryKey: Int, newValues: [Any]) throws {
-        let className = String(describing: type)
-        guard let classInfo = classInfo(for: className) else {
+        guard let classInfo = T.classInfoo(in: self) else {
             throw RealmError.ClassNotFound
         }
         let propertyKeys = try retrievePropertyKeys(with: classInfo)
-        let object = try findObject(with: classInfo, primaryKey: primaryKey)
+        let object = try findObject(with: classInfo.key.toCTableKey(), primaryKey: primaryKey)
         
         let columnKeys = UnsafeMutablePointer<realm_col_key_t>.allocate(capacity: propertyKeys.count)
         for i in 0..<propertyKeys.count {
@@ -191,11 +188,11 @@ extension Realm {
 extension Realm {
     
     func delete<T: Persistable>(_ object: T) throws {
-        guard let classInfo = classInfo(for: object.typeName()) else {
+        let primaryKeyValue = try object.primaryKeyValue()
+        guard let tableKey = object.tableKey(in: self) else {
             throw RealmError.ClassNotFound
         }
-        let primaryKeyValue = try object.primaryKeyValue()
-        let object = try findObject(with: classInfo, primaryKey: primaryKeyValue)
+        let object = try findObject(with: tableKey, primaryKey: primaryKeyValue)
         guard realm_object_delete(object) else {
             throw RealmError.ObjectNotFound
         }
@@ -231,17 +228,7 @@ extension Realm {
 
 extension Realm {
     
-    func classInfo(for className: String) -> ClassInfo? {
-        let didFindClass = UnsafeMutablePointer<Bool>.allocate(capacity: 1)
-        let classInfo = UnsafeMutablePointer<realm_class_info_t>.allocate(capacity: 1)
-        let didSucceed = realm_find_class(cRealm, className.realmString(), didFindClass, classInfo)
-        guard didSucceed && didFindClass.pointee else {
-            return nil
-        }
-        return ClassInfo(classInfo.pointee)
-    }
-    
-    func findObject(with classInfo: ClassInfo, primaryKey: Int) throws -> OpaquePointer {
+    func findObject(with tableKey: realm_table_key_t, primaryKey: Int) throws -> OpaquePointer {
         
         // TODO: Primary key should be optional.
         var pkValue = realm_value_t()
@@ -249,7 +236,7 @@ extension Realm {
         pkValue.type = RLM_TYPE_INT
         
         let found = UnsafeMutablePointer<Bool>.allocate(capacity: 1)
-        guard let retrievedObject = realm_object_find_with_primary_key(cRealm, classInfo.key.toCTableKey(), pkValue, found) else {
+        guard let retrievedObject = realm_object_find_with_primary_key(cRealm, tableKey, pkValue, found) else {
             throw RealmError.ObjectNotFound
         }
         guard found.pointee == true else {

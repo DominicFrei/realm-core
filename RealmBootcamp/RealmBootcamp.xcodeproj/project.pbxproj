@@ -35,7 +35,6 @@
 		7DC346B6259CB3BD00C23B76 /* TableKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DC346B5259CB3BD00C23B76 /* TableKey.swift */; };
 		7DC346BC259CB75200C23B76 /* PropertyInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DC346BB259CB75200C23B76 /* PropertyInfo.swift */; };
 		7DC346C7259CB86D00C23B76 /* ColumnKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DC346C6259CB86D00C23B76 /* ColumnKey.swift */; };
-		7DC346CD259CC50D00C23B76 /* Persistable+CLayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DC346CC259CC50D00C23B76 /* Persistable+CLayer.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -309,7 +308,6 @@
 		7DC346B5259CB3BD00C23B76 /* TableKey.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TableKey.swift; sourceTree = "<group>"; };
 		7DC346BB259CB75200C23B76 /* PropertyInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PropertyInfo.swift; sourceTree = "<group>"; };
 		7DC346C6259CB86D00C23B76 /* ColumnKey.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColumnKey.swift; sourceTree = "<group>"; };
-		7DC346CC259CC50D00C23B76 /* Persistable+CLayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Persistable+CLayer.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -484,7 +482,6 @@
 				7DC346B5259CB3BD00C23B76 /* TableKey.swift */,
 				7DC346C6259CB86D00C23B76 /* ColumnKey.swift */,
 				7D9380212592450900F651A5 /* String+RealmString.swift */,
-				7DC346CC259CC50D00C23B76 /* Persistable+CLayer.swift */,
 			);
 			path = CLayer;
 			sourceTree = "<group>";
@@ -917,7 +914,6 @@
 			files = (
 				7D93801C2592435F00F651A5 /* Configuration.swift in Sources */,
 				7DC346C7259CB86D00C23B76 /* ColumnKey.swift in Sources */,
-				7DC346CD259CC50D00C23B76 /* Persistable+CLayer.swift in Sources */,
 				7DC346B6259CB3BD00C23B76 /* TableKey.swift in Sources */,
 				7D39593B259DEA3500BF5C6B /* ObjectSchema.swift in Sources */,
 				7DC346BC259CB75200C23B76 /* PropertyInfo.swift in Sources */,
