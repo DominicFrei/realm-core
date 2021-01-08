@@ -110,7 +110,12 @@ extension Persistable {
 
 class Persistable2 {
     
-    init() {}
+    var realm: OpaquePointer?
+    var tableKey: realm_table_key_t?
+//    var primaryKeyValue = 0
+    //    var columnKey: realm_col_key_t?
+    
+    required init() {}
     
     func primaryKey() -> String {
         return ""
@@ -135,10 +140,10 @@ class Persistable2 {
         let filteredProperties = properties.filter({ $0.label == self.primaryKey() })
         let firstResult = filteredProperties.first
         let value = firstResult?.value
-        guard let primaryKeyValue = value as? Persisted else {
+        guard let primaryKeyProppertyWrapper = value as? Persisted else {
             throw RealmError.PrimaryKeyViolation
         }
-        return primaryKeyValue.wrappedValue
+        return primaryKeyProppertyWrapper.wrappedValue
     }
     
     func classInfo() -> ClassInfo {

@@ -9,52 +9,44 @@ import RealmC
 
 @propertyWrapper final class Persisted {
     
-    private var _wrappedValue = 0
+    private var isPrimaryKey = false
+    
     var realm: OpaquePointer!
     var tableKey: realm_table_key_t!
-    var primaryKeyValue: realm_value_t!
+    var primaryKeyValue: Int!
     var columnKey: realm_col_key_t!
     
     var wrappedValue: Int {
         get {
-            return _wrappedValue
+            guard !isPrimaryKey else {
+                return primaryKeyValue
+            }
+            
+            let found = UnsafeMutablePointer<Bool>.allocate(capacity: 1)
+            var primaryKey = realm_value_t()
+            primaryKey.type = RLM_TYPE_INT
+            primaryKey.integer = Int64(primaryKeyValue)
+            let object = realm_object_find_with_primary_key(realm, tableKey, primaryKey, found)
+            assert(found.pointee)
+            assert((object != nil))
+            assert(realm_object_is_valid(object))
+            
+            let currentValue = UnsafeMutablePointer<realm_value_t>.allocate(capacity: 1)
+            let success = realm_get_value(object, columnKey, currentValue)
+            assert(success)
+            
+            return Int(currentValue.pointee.integer)
         }
         set {
-            _wrappedValue = newValue
+            guard !isPrimaryKey else {
+                primaryKeyValue = newValue
+                return
+            }
         }
     }
     
-    //    init(defaultValue: Int) {
-    //        self.wrappedValue = defaultValue
-    //    }
-    
-    //    private var value: Int
-    //    private var isPrimaryKey = false
-    
-    
-    //    var wrappedValue: Int
-    //    {
-    //        get {
-    //            let found = UnsafeMutablePointer<Bool>.allocate(capacity: 1)
-    //            let object = realm_object_find_with_primary_key(realm, tableKey, primaryKeyValue, found)
-    //            assert(found.pointee)
-    //            assert((object != nil))
-    //            assert(realm_object_is_valid(object))
-    //
-    //            let currentValue = UnsafeMutablePointer<realm_value_t>.allocate(capacity: 1)
-    //            let success = realm_get_value(object, columnKey, currentValue)
-    //            assert(success)
-    //
-    //            return currentValue.pointee.integer as? Int ?? value
-    //        }
-    //        set {
-    //            value = newValue
-    //        }
-    //    }
-    
-    //    init(isPrimaryKey: Bool, defaultValue: Int) {
-    //        self.isPrimaryKey = isPrimaryKey
-    //        value = defaultValue
-    //    }
+    init(isPrimaryKey: Bool = false) {
+        self.isPrimaryKey = isPrimaryKey
+    }
     
 }

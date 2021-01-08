@@ -207,14 +207,25 @@ extension Realm {
             throw RealmError.ClassNotFound
         }
         let propertyKeys = try retrievePropertyKeys(with: classInfo)
-        let object = try findObject(with: classInfo.key.toCTableKey(), primaryKey: primaryKey)
-        let values: [String: Encodable] = try getValues2(for: object, propertyKeys: propertyKeys, classInfo: classInfo)
+//        let object = try findObject(with: classInfo.key.toCTableKey(), primaryKey: primaryKey)
         
+        let liveObject = T()
+        liveObject.realm = cRealm
+//        liveObject.primaryKeyValue = primaryKey
+        liveObject.tableKey = classInfo.key.toCTableKey()
+//        try liveObject.classProperties()
         
-        let liveObject = Persistable2()
-     
-        // swiftlint:disable:next force_cast
-        return liveObject as! T
+        let mirror = Mirror(reflecting: liveObject)
+        let properties = mirror.children.map { Property(label: $0.label!, value: $0.value) }
+        // swiftlint:disable force_cast
+        for i in 0..<properties.count {
+            (properties[i].value as! Persisted).realm = cRealm
+            (properties[i].value as! Persisted).tableKey = classInfo.key.toCTableKey()
+            (properties[i].value as! Persisted).primaryKeyValue = primaryKey
+            (properties[i].value as! Persisted).columnKey = propertyKeys[i]
+        }
+        
+        return liveObject
     }
     
     func getValues2(for object: OpaquePointer, propertyKeys: [realm_col_key_t], classInfo: ClassInfo) throws -> [String: Encodable] {

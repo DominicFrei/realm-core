@@ -72,6 +72,8 @@ class RealmSDKTests: RealmTestsBaseClass {
         let foo2primaryKey = 42
         var foo2 = Foo2()
         foo2.x = foo2primaryKey
+        foo2.y = 1
+        foo2.z = 2
         
         // Open Realm:
         guard let realm = openRealm() else {
@@ -90,12 +92,10 @@ class RealmSDKTests: RealmTestsBaseClass {
         
         // Read:
         do {
-//            let object = try realm.find2(Foo2.self, withPrimaryKey: foo2primaryKey)
-//            XCTAssertEqual(object.x, foo2primaryKey)
-//            XCTAssertEqual(object.y, 0)
-//            XCTAssertEqual(object.z, 0)
-//            XCTAssertEqual(object.a, "")
-//            XCTAssertEqual(object.b, "")
+            let object = try realm.find2(Foo2.self, withPrimaryKey: foo2primaryKey)
+            XCTAssertEqual(object.x, foo2primaryKey)
+            XCTAssertEqual(object.y, 1)
+            XCTAssertEqual(object.z, 2)
         } catch let error {
             XCTFail(String(describing: error))
         }

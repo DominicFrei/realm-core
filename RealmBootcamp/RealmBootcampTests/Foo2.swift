@@ -14,14 +14,14 @@ class Foo2: Persistable2 {
 //    @Persisted var x: Int
 //    @Persisted var y: Int
 //    @Persisted var z: Int
-    @Persisted var x: Int
+    @Persisted(isPrimaryKey: true) var x: Int
     @Persisted var y: Int
     @Persisted var z: Int
     
     override func primaryKey() -> String {
         return "_x"
       }
-    
+        
 //    init(x: Int, y: Int, z: Int) {
 //        self.init()
 //        self.x = x
