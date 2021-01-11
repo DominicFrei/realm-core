@@ -68,8 +68,8 @@ extension Realm {
         // TODO: Add option to create without primary key.
         var primaryKey = realm_value_t()
         let primaryKeyValue = try object.primaryKeyValue()
-        primaryKey.integer = Int64(primaryKeyValue)
         primaryKey.type = RLM_TYPE_INT
+        primaryKey.integer = Int64(primaryKeyValue)
         guard let tableKey = object.tableKey(in: self) else {
             throw RealmError.ClassNotFound
         }
@@ -128,16 +128,31 @@ extension Realm {
     func create2<T: Persistable2>(_ object: T) throws {
         // TODO: Add option to create without primary key.
         var primaryKey = realm_value_t()
-        let primaryKeyValue = try object.primaryKeyValue()
-        primaryKey.integer = Int64(primaryKeyValue)
         primaryKey.type = RLM_TYPE_INT
+        primaryKey.integer = Int64(object.primaryKeyValue!)
         guard let tableKey = object.tableKey(in: self) else {
             throw RealmError.ClassNotFound
         }
         let createdObject = realm_object_create_with_primary_key(cRealm, tableKey, primaryKey)
+        assert(realm_object_is_valid(createdObject))
         
         guard createdObject != nil else {
             throw RealmError.ObjectCreation
+        }
+        guard let classInfo = T.classInfoo(in: self) else {
+            throw RealmError.ClassNotFound
+        }
+        
+        let propertyKeys = try retrievePropertyKeys(with: classInfo)
+        let mirror = Mirror(reflecting: object)
+        let properties = mirror.children.map { Property(label: $0.label!, value: $0.value) }
+        for i in 0..<properties.count {
+            // swiftlint:disable force_cast
+            (properties[i].value as! Persisted).realm = cRealm
+            (properties[i].value as! Persisted).tableKey = Int(classInfo.key.key)
+            (properties[i].value as! Persisted).columnKey = Int(propertyKeys[i].col_key)
+            (properties[i].value as! Persisted).isManaged = true
+            (properties[i].value as! Persisted).persist()
         }
     }
     
@@ -211,8 +226,8 @@ extension Realm {
         
         let liveObject = T()
         liveObject.realm = cRealm
-//        liveObject.primaryKeyValue = primaryKey
         liveObject.tableKey = classInfo.key.toCTableKey()
+        liveObject.primaryKeyValue = primaryKey
 //        try liveObject.classProperties()
         
         let mirror = Mirror(reflecting: liveObject)
@@ -220,9 +235,10 @@ extension Realm {
         // swiftlint:disable force_cast
         for i in 0..<properties.count {
             (properties[i].value as! Persisted).realm = cRealm
-            (properties[i].value as! Persisted).tableKey = classInfo.key.toCTableKey()
-            (properties[i].value as! Persisted).primaryKeyValue = primaryKey
-            (properties[i].value as! Persisted).columnKey = propertyKeys[i]
+            (properties[i].value as! Persisted).tableKey = Int(classInfo.key.key)
+//            (properties[i].value as! Persisted).primaryKeyValue = primaryKey
+            (properties[i].value as! Persisted).columnKey = Int(propertyKeys[i].col_key)
+            (properties[i].value as! Persisted).isManaged = true
         }
         
         return liveObject
@@ -352,8 +368,8 @@ extension Realm {
         
         // TODO: Primary key should be optional.
         var pkValue = realm_value_t()
-        pkValue.integer = Int64(primaryKey)
         pkValue.type = RLM_TYPE_INT
+        pkValue.integer = Int64(primaryKey)
         
         let found = UnsafeMutablePointer<Bool>.allocate(capacity: 1)
         guard let retrievedObject = realm_object_find_with_primary_key(cRealm, tableKey, pkValue, found) else {

@@ -11,48 +11,48 @@ import RealmC
 
 class JasonsTest: RealmTestsBaseClass {
     
-    struct MyObject: Persistable {
-        var int = 0
-        var str = ""
-        var primaryKey: String {
-            return "int"
-        }
-    }
-    
-    func test() {
-        var obj = MyObject()
-        obj.int = 42
-        var realm: Realm!
-        do {
-            realm = try Realm()
-        } catch let error {
-            XCTFail(error.localizedDescription)
-            return
-        }
-        XCTAssertThrowsError(try realm.add(obj))
-        do {
-            try realm.write {
-                try realm.add(obj)
-                obj.str = "foo"
-            }
-            XCTAssertEqual(obj.str, "foo")
-            XCTAssertTrue(obj.isValid())
-            var foundObj = try realm.find(MyObject.self, withPrimaryKey: 42)
-            XCTAssertEqual(foundObj, obj)
-            XCTAssertTrue(foundObj.isValid())
-            XCTAssertEqual(foundObj.str, "foo")
-            XCTAssertEqual(foundObj.int, 42)
-            XCTAssertThrowsError(foundObj.int = 84)
-            XCTAssertThrowsError(try realm.delete(foundObj))
-            try realm.write {
-                try realm.delete(foundObj)
-            }
-            XCTAssertFalse(foundObj.isValid())
-        } catch let error as RealmError {
-            XCTFail(String(describing: error))
-        } catch let error {
-            XCTFail("Unexpected error: \(error.localizedDescription)")
-        }
-    }
-    
+//    class MyObject: Persistable2 {
+//        @Persisted(isPrimaryKey: true) var int
+//        @Persisted(isPrimaryKey: true) var str
+//        override func primaryKey() -> String {
+//            return "_int"
+//        }
+//    }
+//    
+//    func test() {
+//        let obj = MyObject()
+//        obj.int = 42
+//        var realm: Realm!
+//        do {
+//            realm = try Realm()
+//        } catch let error {
+//            XCTFail(error.localizedDescription)
+//            return
+//        }
+//        XCTAssertThrowsError(try realm.add2(obj))
+//        do {
+//            try realm.write {
+//                try realm.add2(obj)
+//                obj.str = "foo"
+//            }
+//            XCTAssertEqual(obj.str, "foo")
+//            XCTAssertTrue(obj.isValid())
+//            var foundObj = try realm.find2(MyObject.self, withPrimaryKey: 42)
+////            XCTAssertEqual(foundObj, obj)
+//            XCTAssertTrue(foundObj.isValid())
+//            XCTAssertEqual(foundObj.str, "foo")
+//            XCTAssertEqual(foundObj.int, 42)
+//            XCTAssertThrowsError(foundObj.int = 84)
+////            XCTAssertThrowsError(try realm.delete(foundObj))
+//            try realm.write {
+////                try realm.delete(foundObj)
+//            }
+//            XCTAssertFalse(foundObj.isValid())
+//        } catch let error as RealmError {
+//            XCTFail(String(describing: error))
+//        } catch let error {
+//            XCTFail("Unexpected error: \(error.localizedDescription)")
+//        }
+//    }
+//    
 }

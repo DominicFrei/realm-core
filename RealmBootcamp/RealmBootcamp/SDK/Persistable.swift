@@ -86,36 +86,40 @@ extension Persistable {
         return classInfo.pointee.key
     }
     
-    //    static func retrievePropertyKeys(in realm: Realm) throws -> [realm_col_key_t] {
-    //        guard let classInfo = classInfoo(in: realm) else {
-    //            throw RealmError.ClassNotFound
-    //        }
-    //        let propertyKeys = UnsafeMutablePointer<realm_col_key_t>.allocate(capacity: classInfo.num_properties)
-    //        let outNumber = UnsafeMutablePointer<size_t>.allocate(capacity: 1)
-    //        guard let tableKey = tableKey(in: realm) else {
-    //            throw RealmError.ClassNotFound
-    //        }
-    //        guard realm_get_property_keys(realm.cRealm, tableKey, propertyKeys, classInfo.num_properties, outNumber) else {
-    //            throw RealmError.PropertiesNotFound
-    //        }
-    //        var columnKeys = [realm_col_key_t]()
-    //        for i in 0..<classInfo().num_properties {
-    //            let columnKey = propertyKeys.advanced(by: i).pointee
-    //            columnKeys.append(columnKey)
-    //        }
-    //        return columnKeys
-    //    }
-    
 }
 
 class Persistable2 {
     
     var realm: OpaquePointer?
     var tableKey: realm_table_key_t?
-//    var primaryKeyValue = 0
-    //    var columnKey: realm_col_key_t?
+    var primaryKeyValue: Int?
     
-    required init() {}
+    required init() {
+        let mirror = Mirror(reflecting: self)
+        let properties = mirror.children.map { Property(label: $0.label!, value: $0.value) }
+        for property in properties {
+            switch property.value {
+            case let value as Persisted:
+                value.container = self
+//            case let value as Persisted:
+//                value.container = self
+            default:
+                abort()
+            }
+        }
+//        primaryKeyValue = getPrimaryKeyValue()
+    }
+    
+//    func getPrimaryKeyValue() -> Int {
+//        let properties = self.properties()
+//        let filteredProperties = properties.filter({ $0.label == self.primaryKey() })
+//        let firstResult = filteredProperties.first
+//        let value = firstResult!.value
+//        // swiftlint:disable:next force_cast
+//        let primaryKeyProppertyWrapper = value as! Persisted
+//        let unwrappedValue = Int(primaryKeyProppertyWrapper.wrappedValue)
+//        return unwrappedValue
+//    }
     
     func primaryKey() -> String {
         return ""
@@ -135,16 +139,16 @@ class Persistable2 {
         return false
     }
     
-    func primaryKeyValue() throws -> Int {
-        let properties = self.properties()
-        let filteredProperties = properties.filter({ $0.label == self.primaryKey() })
-        let firstResult = filteredProperties.first
-        let value = firstResult?.value
-        guard let primaryKeyProppertyWrapper = value as? Persisted else {
-            throw RealmError.PrimaryKeyViolation
-        }
-        return primaryKeyProppertyWrapper.wrappedValue
-    }
+//    func primaryKeyValue() throws -> Int {
+//        let properties = self.properties()
+//        let filteredProperties = properties.filter({ $0.label == self.primaryKey() })
+//        let firstResult = filteredProperties.first
+//        let value = firstResult?.value
+//        guard let primaryKeyProppertyWrapper = value as? Persisted else {
+//            throw RealmError.PrimaryKeyViolation
+//        }
+//        return primaryKeyProppertyWrapper.wrappedValue
+//    }
     
     func classInfo() -> ClassInfo {
         let primaryKey = self.primaryKey().realmString()

@@ -8,15 +8,15 @@
 import RealmC
 
 struct ColumnKey {
-    let key: Int64
+    let key: Int
     
     init(_ columnKey: realm_col_key_t) {
-        key = columnKey.col_key
+        key = Int(columnKey.col_key)
     }
     
     func toCColumnKey() -> realm_col_key_t {
         var cColumnKey = realm_col_key_t()
-        cColumnKey.col_key = key
+        cColumnKey.col_key = Int64(key)
         return cColumnKey
     }
 }
