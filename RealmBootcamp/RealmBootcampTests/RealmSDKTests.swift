@@ -36,7 +36,7 @@ class RealmSDKTests: RealmTestsBaseClass {
         
         // Read:
         do {
-            let object = try realm.find2(Foo.self, withPrimaryKey: foo2primaryKey)
+            let object = try realm.find(Foo.self, withPrimaryKey: foo2primaryKey)
             XCTAssertEqual(object.x, foo2primaryKey)
             XCTAssertEqual(object.y, 1)
             XCTAssertEqual(object.z, 2)
@@ -50,7 +50,7 @@ class RealmSDKTests: RealmTestsBaseClass {
                 foo2.y = 23
                 foo2.z = 24
             }
-            let object = try realm.find2(Foo.self, withPrimaryKey: foo2primaryKey)
+            let object = try realm.find(Foo.self, withPrimaryKey: foo2primaryKey)
             XCTAssertEqual(object.x, foo2primaryKey)
             XCTAssertEqual(object.y, 23)
             XCTAssertEqual(object.z, 24)
@@ -58,22 +58,8 @@ class RealmSDKTests: RealmTestsBaseClass {
             XCTFail(String(describing: error))
         }
         
-        // Add more objects:
-//        let faz2 = Faz(x: 43, y: 1, z: 2, a: "3", b: "4")
-//        let foo = Foo(x: 44, y: 1, z: 2)
-//        let bar = Bar(x: 45, y: 46, z: 47)
-        do {
-            try realm.write {
-//                try realm.add(faz2)
-//                try realm.add(foo)
-//                try realm.add(bar)
-            }
-        } catch let error {
-            XCTFail(String(describing: error))
-        }
-        
         // Delete:
-        //        delete(foo2, withPrimaryKey: foo2primaryKey, from: realm)
+        delete(foo2, withPrimaryKey: foo2primaryKey, from: realm)
     }
     
     func openRealm() -> Realm? {

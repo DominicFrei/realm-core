@@ -20,6 +20,8 @@ class Persistable {
             switch property.value {
             case let value as Persisted:
                 value.container = self
+            case let value as PersistedString:
+                value.container = self
             default:
                 abort()
             }

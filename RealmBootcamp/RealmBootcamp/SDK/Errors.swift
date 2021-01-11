@@ -19,4 +19,5 @@ enum RealmError: Error {
     case InvalidPath
     case ObjectCreation
     case UpdateFailed
+    case InvalidValueType
 }

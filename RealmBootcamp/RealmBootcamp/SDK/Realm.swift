@@ -85,12 +85,22 @@ extension Realm {
         let mirror = Mirror(reflecting: object)
         let properties = mirror.children.map { Property(label: $0.label!, value: $0.value) }
         for i in 0..<properties.count {
-            // swiftlint:disable force_cast
-            (properties[i].value as! Persisted).realm = cRealm
-            (properties[i].value as! Persisted).tableKey = Int(classInfo.key.key)
-            (properties[i].value as! Persisted).columnKey = Int(propertyKeys[i].col_key)
-            (properties[i].value as! Persisted).isManaged = true
-            (properties[i].value as! Persisted).persist()
+            switch properties[i].value {
+            case let value as Persisted:
+                value.realm = cRealm
+                value.tableKey = Int(classInfo.key.key)
+                value.columnKey = Int(propertyKeys[i].col_key)
+                value.isManaged = true
+                value.persist()
+            case let value as PersistedString:
+                value.realm = cRealm
+                value.tableKey = Int(classInfo.key.key)
+                value.columnKey = Int(propertyKeys[i].col_key)
+                value.isManaged = true
+                value.persist()
+            default:
+                throw RealmError.InvalidValueType
+            }
         }
     }
     
@@ -100,7 +110,7 @@ extension Realm {
 
 extension Realm {
     
-    func find2<T: Persistable>(_ type: T.Type, withPrimaryKey primaryKey: Int) throws -> T {
+    func find<T: Persistable>(_ type: T.Type, withPrimaryKey primaryKey: Int) throws -> T {
         guard let classInfo = type.classInfoo(in: self) else {
             throw RealmError.ClassNotFound
         }
@@ -113,12 +123,21 @@ extension Realm {
         
         let mirror = Mirror(reflecting: liveObject)
         let properties = mirror.children.map { Property(label: $0.label!, value: $0.value) }
-        // swiftlint:disable force_cast
         for i in 0..<properties.count {
-            (properties[i].value as! Persisted).realm = cRealm
-            (properties[i].value as! Persisted).tableKey = Int(classInfo.key.key)
-            (properties[i].value as! Persisted).columnKey = Int(propertyKeys[i].col_key)
-            (properties[i].value as! Persisted).isManaged = true
+            switch properties[i].value {
+            case let value as Persisted:
+                value.realm = cRealm
+                value.tableKey = Int(classInfo.key.key)
+                value.columnKey = Int(propertyKeys[i].col_key)
+                value.isManaged = true
+            case let value as PersistedString:
+                value.realm = cRealm
+                value.tableKey = Int(classInfo.key.key)
+                value.columnKey = Int(propertyKeys[i].col_key)
+                value.isManaged = true
+            default:
+                throw RealmError.InvalidValueType
+            }
         }
         
         return liveObject

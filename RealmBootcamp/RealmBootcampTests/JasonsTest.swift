@@ -13,7 +13,7 @@ class JasonsTest: RealmTestsBaseClass {
     
     class MyObject: Persistable {
         @Persisted(isPrimaryKey: true) var int
-        @Persisted(isPrimaryKey: false) var str
+        @PersistedString var str
         override func primaryKey() -> String {
             return "_int"
         }
@@ -33,14 +33,14 @@ class JasonsTest: RealmTestsBaseClass {
         do {
             try realm.write {
                 try realm.add(obj)
-//                obj.str = "foo"
+                obj.str = "foo"
             }
-//            XCTAssertEqual(obj.str, "foo")
+            XCTAssertEqual(obj.str, "foo")
             XCTAssertTrue(obj.isValid())
-            var foundObj = try realm.find2(MyObject.self, withPrimaryKey: 42)
-            //            XCTAssertEqual(foundObj, obj)
+            let foundObj = try realm.find(MyObject.self, withPrimaryKey: 42)
+//                        XCTAssertEqual(foundObj, obj)
             XCTAssertTrue(foundObj.isValid())
-//            XCTAssertEqual(foundObj.str, "foo")
+            XCTAssertEqual(foundObj.str, "foo")
             XCTAssertEqual(foundObj.int, 42)
             XCTAssertThrowsError(foundObj.int = 84)
             //            XCTAssertThrowsError(try realm.delete(foundObj))
