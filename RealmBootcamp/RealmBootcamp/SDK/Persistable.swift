@@ -32,8 +32,19 @@ class Persistable: Equatable {
         lhs.primaryKeyValue == rhs.primaryKeyValue
     }
     
-    func primaryKey() -> String {
-        return ""
+    func primaryKey() throws -> String {
+        let mirror = Mirror(reflecting: self)
+        let properties = mirror.children.map { Property(label: $0.label!, value: $0.value) }
+        let intProperties = properties.filter { (property) -> Bool in
+            property.value is Persisted && (property.value as? Persisted)?.isPrimaryKey == true
+        }
+        
+        guard let primaryKeyProperty = intProperties.first else {
+            throw RealmError.PrimaryKeyViolation
+        }
+        
+        let primaryKey = primaryKeyProperty.label
+        return primaryKey
     }
     
     func properties() -> [Property] {
@@ -59,8 +70,8 @@ class Persistable: Equatable {
         return isValid
     }
     
-    func classInfo() -> ClassInfo {
-        let primaryKey = self.primaryKey().realmString()
+    func classInfo() throws -> ClassInfo {
+        let primaryKey = try self.primaryKey().realmString()
         var classInfo = realm_class_info_t()
         classInfo.name = typeName().realmString()
         classInfo.primary_key = primaryKey
@@ -81,7 +92,7 @@ class Persistable: Equatable {
             default:
                 break
             }
-            let isPrimaryKey = self.primaryKey() == property.label
+            let isPrimaryKey = try self.primaryKey() == property.label
             let key = realm_col_key_t()
             let propertyInfo = PropertyInfo(name: name, type: type, isPrimaryKey: isPrimaryKey, key: key)
             classProperties.append(propertyInfo)

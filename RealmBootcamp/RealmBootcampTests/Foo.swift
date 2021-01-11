@@ -11,8 +11,4 @@ class Foo: Persistable {
     @Persisted(isPrimaryKey: true) var x: Int
     @Persisted var y: Int
     @Persisted var z: Int
-    
-    override func primaryKey() -> String {
-        return "_x"
-    }
 }

@@ -20,4 +20,5 @@ enum RealmError: Error {
     case ObjectCreation
     case UpdateFailed
     case InvalidValueType
+    case WrongTransactionalState
 }

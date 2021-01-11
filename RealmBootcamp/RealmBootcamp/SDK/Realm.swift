@@ -45,7 +45,7 @@ extension Realm {
         }
 
         // Add the new class to the existing class and property info.
-        classInfos.advanced(by: existingClassesCount).pointee = type.classInfo().toCClassInfo()
+        classInfos.advanced(by: existingClassesCount).pointee = try type.classInfo().toCClassInfo()
         let classPropertyArray: [PropertyInfo] = try type.classProperties()
         let mappedProperties: [realm_property_info_t] = classPropertyArray.map {$0.handle}
         let propertiesAsUnsafePointer: UnsafePointer<realm_property_info_t> = mappedProperties.withUnsafeBufferPointer({$0.baseAddress!})

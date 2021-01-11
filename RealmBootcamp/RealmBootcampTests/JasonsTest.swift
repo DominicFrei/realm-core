@@ -14,9 +14,6 @@ class JasonsTest: RealmTestsBaseClass {
     class MyObject: Persistable {
         @Persisted(isPrimaryKey: true) var int
         @PersistedString var str
-        override func primaryKey() -> String {
-            return "_int"
-        }
     }
     
     func test() {
