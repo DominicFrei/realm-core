@@ -88,13 +88,13 @@ extension Realm {
         let properties = mirror.children.map { Property(label: $0.label!, value: $0.value) }
         for i in 0..<properties.count {
             switch properties[i].value {
-            case let value as Persisted:
+            case let value as PersistedGeneric<Int>:
                 value.realm = cRealm
                 value.tableKey = Int(classInfo.key.key)
                 value.columnKey = Int(propertyKeys[i].col_key)
                 value.isManaged = true
                 value.persist()
-            case let value as PersistedString:
+            case let value as PersistedGeneric<String>:
                 value.realm = cRealm
                 value.tableKey = Int(classInfo.key.key)
                 value.columnKey = Int(propertyKeys[i].col_key)
@@ -127,12 +127,12 @@ extension Realm {
         let properties = mirror.children.map { Property(label: $0.label!, value: $0.value) }
         for i in 0..<properties.count {
             switch properties[i].value {
-            case let value as Persisted:
+            case let value as PersistedGeneric<Int>:
                 value.realm = cRealm
                 value.tableKey = Int(classInfo.key.key)
                 value.columnKey = Int(propertyKeys[i].col_key)
                 value.isManaged = true
-            case let value as PersistedString:
+            case let value as PersistedGeneric<String>:
                 value.realm = cRealm
                 value.tableKey = Int(classInfo.key.key)
                 value.columnKey = Int(propertyKeys[i].col_key)

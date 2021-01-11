@@ -8,7 +8,7 @@
 @testable import RealmBootcamp
 
 class Foo: Persistable {
-    @Persisted(isPrimaryKey: true) var x: Int
-    @Persisted var y: Int
-    @Persisted var z: Int
+    @PersistedGeneric<Int>(isPrimaryKey: true) var x
+    @PersistedGeneric<Int> var y
+    @PersistedGeneric<Int> var z
 }

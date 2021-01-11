@@ -18,9 +18,13 @@ class Persistable: Equatable {
         let properties = mirror.children.map { Property(label: $0.label!, value: $0.value) }
         for property in properties {
             switch property.value {
-            case let value as Persisted:
+//            case let value as Persisted:
+//                value.container = self
+//            case let value as PersistedString:
+//                value.container = self
+            case let value as PersistedGeneric<String>:
                 value.container = self
-            case let value as PersistedString:
+            case let value as PersistedGeneric<Int>:
                 value.container = self
             default:
                 abort()
@@ -36,7 +40,7 @@ class Persistable: Equatable {
         let mirror = Mirror(reflecting: self)
         let properties = mirror.children.map { Property(label: $0.label!, value: $0.value) }
         let intProperties = properties.filter { (property) -> Bool in
-            property.value is Persisted && (property.value as? Persisted)?.isPrimaryKey == true
+            property.value is PersistedGeneric<Int> && (property.value as? PersistedGeneric<Int>)?.isPrimaryKey == true
         }
         
         guard let primaryKeyProperty = intProperties.first else {
@@ -85,12 +89,12 @@ class Persistable: Equatable {
             let name = property.label
             var type = realm_property_type_e(rawValue: 0)
             switch property.value {
-            case is Int:
+            case is PersistedGeneric<Int>:
                 type = RLM_PROPERTY_TYPE_INT
-            case is String:
+            case is PersistedGeneric<String>:
                 type = RLM_PROPERTY_TYPE_STRING
             default:
-                break
+                abort()
             }
             let isPrimaryKey = try self.primaryKey() == property.label
             let key = realm_col_key_t()
