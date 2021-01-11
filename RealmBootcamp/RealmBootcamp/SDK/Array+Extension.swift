@@ -7,11 +7,11 @@
 
 extension Array where Element: Persistable {
     
-    func primaryKey(_ primaryKey: Int) throws -> [Element] {
-        let filteredArray = try self.filter({ (object) -> Bool in
-            try object.primaryKeyValue() == primaryKey
-        })
-        return filteredArray
-    }
+//    func primaryKey(_ primaryKey: Int) throws -> [Element] {
+//        let filteredArray = try self.filter({ (object) -> Bool in
+//            try object.primaryKeyValue() == primaryKey
+//        })
+//        return filteredArray
+//    }
     
 }

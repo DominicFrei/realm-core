@@ -7,14 +7,13 @@
 
 import RealmC
 
-// swiftlint:disable force_cast
 @propertyWrapper final class Persisted {
     
     var _wrappedValue: Int = 0
     var isPrimaryKey = false
     var isManaged = false
     
-    var container: Persistable2?
+    var container: Persistable?
     var realm: OpaquePointer?
     var tableKey: Int?
     var columnKey: Int?
