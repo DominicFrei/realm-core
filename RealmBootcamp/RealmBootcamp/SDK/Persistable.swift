@@ -7,7 +7,7 @@
 
 import RealmC
 
-class Persistable {
+class Persistable: Equatable {
     
     var realm: OpaquePointer?
     var tableKey: realm_table_key_t?
@@ -28,6 +28,10 @@ class Persistable {
         }
     }
     
+    static func == (lhs: Persistable, rhs: Persistable) -> Bool {
+        lhs.primaryKeyValue == rhs.primaryKeyValue
+    }
+    
     func primaryKey() -> String {
         return ""
     }
@@ -43,7 +47,16 @@ class Persistable {
     }
     
     func isValid() -> Bool {
-        return false
+        var primaryKey = realm_value_t()
+        primaryKey.type = RLM_TYPE_INT
+        primaryKey.integer = Int64(primaryKeyValue!)
+        let found = UnsafeMutablePointer<Bool>.allocate(capacity: 1)
+        let object = realm_object_find_with_primary_key(realm, tableKey!, primaryKey, found)
+        guard found.pointee else {
+            return false
+        }
+        let isValid = realm_object_is_valid(object)
+        return isValid
     }
     
     func classInfo() -> ClassInfo {

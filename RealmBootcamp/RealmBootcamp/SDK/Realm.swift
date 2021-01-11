@@ -73,6 +73,8 @@ extension Realm {
         }
         let createdObject = realm_object_create_with_primary_key(cRealm, tableKey, primaryKey)
         assert(realm_object_is_valid(createdObject))
+        object.realm = cRealm
+        object.tableKey = tableKey
         
         guard createdObject != nil else {
             throw RealmError.ObjectCreation

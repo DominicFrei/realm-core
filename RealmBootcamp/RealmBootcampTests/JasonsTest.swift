@@ -38,14 +38,14 @@ class JasonsTest: RealmTestsBaseClass {
             XCTAssertEqual(obj.str, "foo")
             XCTAssertTrue(obj.isValid())
             let foundObj = try realm.find(MyObject.self, withPrimaryKey: 42)
-//                        XCTAssertEqual(foundObj, obj)
+            XCTAssertEqual(foundObj, obj)
             XCTAssertTrue(foundObj.isValid())
             XCTAssertEqual(foundObj.str, "foo")
             XCTAssertEqual(foundObj.int, 42)
             XCTAssertThrowsError(foundObj.int = 84)
-            //            XCTAssertThrowsError(try realm.delete(foundObj))
+            XCTAssertThrowsError(try realm.delete(foundObj))
             try realm.write {
-                //                try realm.delete(foundObj)
+                try realm.delete(foundObj)
             }
             XCTAssertFalse(foundObj.isValid())
         } catch let error as RealmError {
